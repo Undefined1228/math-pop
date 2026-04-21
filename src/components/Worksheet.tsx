@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import type { Problem } from '../domain/problem'
 import type { Mode } from '../domain/types'
+import { inputKey, carryKey } from '../domain/grade'
 
 interface Props {
   mode: Mode
@@ -91,8 +92,8 @@ function VertCard({ p, showAnswer, gradeResult, inputs, onInputChange }: CardPro
                 inputMode="numeric"
                 pattern="[0-9]*"
                 maxLength={1}
-                value={inputs[`${p.id}-c-${i}`] || ''}
-                onChange={e => onInputChange(`${p.id}-c-${i}`, e.target.value.replace(/\D/g, '').slice(0, 1))}
+                value={inputs[carryKey(p.id, i)] || ''}
+                onChange={e => onInputChange(carryKey(p.id, i), e.target.value.replace(/\D/g, '').slice(0, 1))}
                 onFocus={() => setFocused('c-' + i)}
                 onBlur={() => setFocused(null)}
                 className="w-full h-full border-none outline-none bg-transparent text-center font-mono text-[10px] text-muted caret-muted"
@@ -137,8 +138,8 @@ function VertCard({ p, showAnswer, gradeResult, inputs, onInputChange }: CardPro
                 inputMode="numeric"
                 pattern="[0-9]*"
                 maxLength={1}
-                value={inputs[`${p.id}-${i}`] || ''}
-                onChange={e => onInputChange(`${p.id}-${i}`, e.target.value.replace(/\D/g, '').slice(0, 1))}
+                value={inputs[inputKey(p.id, i)] || ''}
+                onChange={e => onInputChange(inputKey(p.id, i), e.target.value.replace(/\D/g, '').slice(0, 1))}
                 onFocus={() => setFocused('a-' + i)}
                 onBlur={() => setFocused(null)}
                 className={`w-full h-full border-none outline-none bg-transparent text-center font-mono text-[19px] font-medium text-accent caret-accent ${showAnswer ? 'opacity-20' : ''}`}
@@ -186,8 +187,8 @@ function HoriCard({ p, showAnswer, gradeResult, inputs, onInputChange }: CardPro
           inputMode="numeric"
           pattern="[0-9]*"
           maxLength={answerMaxLen}
-          value={inputs[`${p.id}`] || ''}
-          onChange={e => onInputChange(`${p.id}`, e.target.value.replace(/\D/g, '').slice(0, answerMaxLen))}
+          value={inputs[inputKey(p.id)] || ''}
+          onChange={e => onInputChange(inputKey(p.id), e.target.value.replace(/\D/g, '').slice(0, answerMaxLen))}
           className={`w-full border-none outline-none bg-transparent text-center font-mono text-[19px] font-medium text-accent caret-accent pb-[2px] ${showAnswer ? 'opacity-20' : ''}`}
         />
         {showAnswer && (

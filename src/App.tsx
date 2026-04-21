@@ -5,6 +5,7 @@ import type { Mode, Op, Range } from './domain/types'
 import { OP_LABELS, RANGE_LABELS } from './domain/labels'
 import type { Problem } from './domain/problem'
 import { generateProblems } from './domain/generate'
+import { gradeAll } from './domain/grade'
 
 export default function App() {
   const [mode, setMode] = useState<Mode>('vert')
@@ -69,19 +70,7 @@ export default function App() {
       setGradedResults({})
       return
     }
-    const results: Record<number, boolean> = {}
-    for (const page of problems.slice(0, pages)) {
-      for (const p of page) {
-        if (mode === 'vert') {
-          const digits = Array.from({ length: p.digits + 1 }, (_, i) => inputs[`${p.id}-${i}`] || '').join('')
-          const userAns = digits.trim() ? parseInt(digits, 10) : NaN
-          results[p.id] = userAns === p.answer
-        } else {
-          results[p.id] = parseInt(inputs[`${p.id}`] || '', 10) === p.answer
-        }
-      }
-    }
-    setGradedResults(results)
+    setGradedResults(gradeAll(problems.slice(0, pages), mode, inputs))
   }
 
   const visibleProblems = problems.slice(0, pages)

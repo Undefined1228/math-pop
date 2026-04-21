@@ -21,12 +21,12 @@
 
 ## Phase 2 — 채점 로직 분리
 
-- [ ] `src/domain/grade.ts` 생성
+- [x] `src/domain/grade.ts` 생성
   - `inputKey(pid, idx)`, `carryKey(pid, idx)` 같은 키 생성 함수
   - `gradeProblem(problem, mode, inputs): boolean` 순수 함수 (현재 `App.tsx` `handleGrade`에서 분기 이관)
   - `gradeAll(pages, mode, inputs): Record<number, boolean>`
-- [ ] `App.tsx`의 `handleGrade`는 `gradeAll` 호출만 하도록 축소
-- [ ] `Worksheet.tsx`·`VertCard` 내부의 키 문자열도 `inputKey` 유틸로 통일
+- [x] `App.tsx`의 `handleGrade`는 `gradeAll` 호출만 하도록 축소
+- [x] `Worksheet.tsx`·`VertCard` 내부의 키 문자열도 `inputKey` 유틸로 통일
 
 > ✅ 검증: 가로셈/세로셈 각각 정답·오답 표시가 기존과 동일.
 
