@@ -59,7 +59,7 @@ function VertCard({ p, showAnswer, gradeResult, inputs, onInputChange }: CardPro
       <div className={`bg-paper rounded-[3px] overflow-hidden ${borderClass}`}>
         <div className="grid grid-cols-4" style={{ gridTemplateRows: '18px 44px 44px 44px' }}>
           {[0, 1, 2, 3].map(i => (
-            <div key={i} className={`bg-[#F0EDE3] border-b border-[#DDD9CB] ${i < 3 ? 'border-r border-r-[#DDD9CB]' : ''} flex items-center justify-center`}>
+            <div key={i} className={`bg-[#F0EDE3] border-b border-[#DDD9CB] ${i < 3 ? 'border-r border-r-[#DDD9CB]' : ''} flex items-center justify-center transition-colors duration-100 focus-within:bg-[#E2DBc8]`}>
               <input
                 type="text"
                 inputMode="numeric"
@@ -87,7 +87,7 @@ function VertCard({ p, showAnswer, gradeResult, inputs, onInputChange }: CardPro
           {[0, 1, 2, 3].map(i => (
             <div
               key={i}
-              className={`relative ${cell} ${i < 3 ? 'border-r border-stroke' : ''}`}
+              className={`relative ${cell} ${i < 3 ? 'border-r border-stroke' : ''} bg-[#FDFAF3] transition-colors duration-100 focus-within:bg-amber-50`}
               style={{ borderTop: '2.5px solid #1C2B3A' }}
             >
               <input
