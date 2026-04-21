@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import React, { useState } from 'react'
 import type { Problem } from '../utils/generateProblems'
 import type { Mode } from './ControlHeader'
 
@@ -47,13 +47,12 @@ interface CardProps {
   onInputChange: (key: string, val: string) => void
 }
 
-const NO_FILL = {
+const NO_FILL: React.InputHTMLAttributes<HTMLInputElement> = {
   autoComplete: 'off',
-  autoCorrect: 'off' as never,
-  autoCapitalize: 'none' as never,
-  spellCheck: false as never,
-  'data-form-type': 'other',
-  'data-lpignore': 'true',
+  autoCorrect: 'off',
+  autoCapitalize: 'none',
+  spellCheck: false,
+  name: 'math-input',
 }
 
 function VertCard({ p, showAnswer, gradeResult, inputs, onInputChange }: CardProps) {
@@ -72,7 +71,7 @@ function VertCard({ p, showAnswer, gradeResult, inputs, onInputChange }: CardPro
           {[0, 1, 2, 3].map(i => (
             <div
               key={i}
-              className={`border-b border-[#DDD9CB] ${i < 3 ? 'border-r border-r-[#DDD9CB]' : ''} flex items-center justify-center transition-colors duration-100 ${focused === `c-${i}` ? 'bg-[#E2DBC8]' : 'bg-[#F0EDE3]'}`}
+              className={`border-b border-[#DDD9CB] ${i < 3 ? 'border-r border-r-[#DDD9CB]' : ''} flex items-center justify-center transition-colors duration-100 ${focused === 'c-' + i ? 'bg-[#E2DBC8]' : 'bg-[#F0EDE3]'}`}
             >
               <input
                 {...NO_FILL}
@@ -82,7 +81,7 @@ function VertCard({ p, showAnswer, gradeResult, inputs, onInputChange }: CardPro
                 maxLength={1}
                 value={inputs[`${p.id}-c-${i}`] || ''}
                 onChange={e => onInputChange(`${p.id}-c-${i}`, e.target.value.replace(/\D/g, '').slice(0, 1))}
-                onFocus={() => setFocused(`c-${i}`)}
+                onFocus={() => setFocused('c-' + i)}
                 onBlur={() => setFocused(null)}
                 className="w-full h-full border-none outline-none bg-transparent text-center font-mono text-[10px] text-muted caret-muted"
               />
@@ -104,7 +103,7 @@ function VertCard({ p, showAnswer, gradeResult, inputs, onInputChange }: CardPro
           {[0, 1, 2, 3].map(i => (
             <div
               key={i}
-              className={`relative ${cell} ${i < 3 ? 'border-r border-stroke' : ''} transition-colors duration-100 ${focused === `a-${i}` ? 'bg-amber-50' : 'bg-[#FDFAF3]'}`}
+              className={`relative ${cell} ${i < 3 ? 'border-r border-stroke' : ''} transition-colors duration-100 ${focused === 'a-' + i ? 'bg-amber-50' : 'bg-[#FDFAF3]'}`}
               style={{ borderTop: '2.5px solid #1C2B3A' }}
             >
               <input
@@ -115,7 +114,7 @@ function VertCard({ p, showAnswer, gradeResult, inputs, onInputChange }: CardPro
                 maxLength={1}
                 value={inputs[`${p.id}-${i}`] || ''}
                 onChange={e => onInputChange(`${p.id}-${i}`, e.target.value.replace(/\D/g, '').slice(0, 1))}
-                onFocus={() => setFocused(`a-${i}`)}
+                onFocus={() => setFocused('a-' + i)}
                 onBlur={() => setFocused(null)}
                 className={`w-full h-full border-none outline-none bg-transparent text-center font-mono text-[19px] font-medium text-accent caret-accent ${showAnswer ? 'opacity-20' : ''}`}
               />
