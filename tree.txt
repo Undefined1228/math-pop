@@ -1,0 +1,42 @@
+.
+├── eslint.config.js
+├── index.html
+├── package-lock.json
+├── package.json
+├── plans
+│   ├── checklist
+│   │   └── dev-checklist.md
+│   ├── features
+│   │   ├── answer-grading.md
+│   │   ├── control-header.md
+│   │   ├── extensions.md
+│   │   ├── timer.md
+│   │   └── worksheet-layout.md
+│   ├── mockup
+│   │   └── layout.html
+│   └── plan.md
+├── public
+│   ├── favicon.svg
+│   └── icons.svg
+├── README.md
+├── src
+│   ├── App.css
+│   ├── App.tsx
+│   ├── assets
+│   │   ├── hero.png
+│   │   ├── react.svg
+│   │   └── vite.svg
+│   ├── components
+│   │   ├── ControlHeader.tsx
+│   │   └── Worksheet.tsx
+│   ├── index.css
+│   ├── main.tsx
+│   └── utils
+│       └── generateProblems.ts
+├── tree.txt
+├── tsconfig.app.json
+├── tsconfig.json
+├── tsconfig.node.json
+└── vite.config.ts
+
+10 directories, 30 files
