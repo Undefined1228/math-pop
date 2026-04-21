@@ -52,5 +52,3 @@ coverage
 *.temp
 .cache
 
-# 개인 플랜 (로컬 전용)
-plans/
