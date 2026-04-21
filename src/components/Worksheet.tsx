@@ -59,15 +59,17 @@ function VertCard({ p, showAnswer, gradeResult, inputs, onInputChange }: CardPro
       <div className={`bg-paper rounded-[3px] overflow-hidden ${borderClass}`}>
         <div className="grid grid-cols-4" style={{ gridTemplateRows: '18px 44px 44px 44px' }}>
           {[0, 1, 2, 3].map(i => (
-            <div key={i} className={`bg-[#F0EDE3] border-b border-[#DDD9CB] ${i < 3 ? 'border-r border-r-[#DDD9CB]' : ''} flex items-center justify-center transition-colors duration-100 focus-within:bg-[#E2DBc8]`}>
+            <div key={i} className={`bg-[#F0EDE3] border-b border-[#DDD9CB] ${i < 3 ? 'border-r border-r-[#DDD9CB]' : ''} flex items-center justify-center`}>
               <input
                 type="text"
                 inputMode="numeric"
                 pattern="[0-9]*"
                 maxLength={1}
+                autoComplete="off"
+                autoCorrect="off"
                 value={inputs[`${p.id}-c-${i}`] || ''}
                 onChange={e => onInputChange(`${p.id}-c-${i}`, e.target.value.replace(/\D/g, '').slice(0, 1))}
-                className="w-full h-full border-none outline-none bg-transparent text-center font-mono text-[10px] text-muted caret-muted"
+                className="w-full h-full border-none outline-none bg-transparent focus:bg-[#E2DBC8] transition-colors duration-100 text-center font-mono text-[10px] text-muted caret-muted"
               />
             </div>
           ))}
@@ -87,7 +89,7 @@ function VertCard({ p, showAnswer, gradeResult, inputs, onInputChange }: CardPro
           {[0, 1, 2, 3].map(i => (
             <div
               key={i}
-              className={`relative ${cell} ${i < 3 ? 'border-r border-stroke' : ''} bg-[#FDFAF3] transition-colors duration-100 focus-within:bg-amber-50`}
+              className={`relative ${cell} ${i < 3 ? 'border-r border-stroke' : ''}`}
               style={{ borderTop: '2.5px solid #1C2B3A' }}
             >
               <input
@@ -95,9 +97,11 @@ function VertCard({ p, showAnswer, gradeResult, inputs, onInputChange }: CardPro
                 inputMode="numeric"
                 pattern="[0-9]*"
                 maxLength={1}
+                autoComplete="off"
+                autoCorrect="off"
                 value={inputs[`${p.id}-${i}`] || ''}
                 onChange={e => onInputChange(`${p.id}-${i}`, e.target.value.replace(/\D/g, '').slice(0, 1))}
-                className={`w-full h-full border-none outline-none bg-transparent text-center font-mono text-[19px] font-medium text-accent caret-accent ${showAnswer ? 'opacity-20' : ''}`}
+                className={`w-full h-full border-none outline-none bg-[#FDFAF3] focus:bg-amber-50 transition-colors duration-100 text-center font-mono text-[19px] font-medium text-accent caret-accent ${showAnswer ? 'opacity-20' : ''}`}
               />
               {showAnswer && ansStr[i] !== ' ' && (
                 <span className="absolute inset-0 flex items-center justify-center font-mono text-[19px] font-medium text-navy pointer-events-none">
@@ -135,6 +139,8 @@ function HoriCard({ p, showAnswer, gradeResult, inputs, onInputChange }: CardPro
           inputMode="numeric"
           pattern="[0-9]*"
           maxLength={5}
+          autoComplete="off"
+          autoCorrect="off"
           value={inputs[`${p.id}`] || ''}
           onChange={e => onInputChange(`${p.id}`, e.target.value.replace(/\D/g, '').slice(0, 5))}
           className={`w-full border-none outline-none bg-transparent text-center font-mono text-[19px] font-medium text-accent caret-accent pb-[2px] ${showAnswer ? 'opacity-20' : ''}`}
