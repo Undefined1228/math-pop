@@ -52,7 +52,9 @@ const NO_FILL: React.InputHTMLAttributes<HTMLInputElement> = {
   autoCorrect: 'off',
   autoCapitalize: 'none',
   spellCheck: false,
-  name: 'math-input',
+  // @ts-ignore
+  'data-form-type': 'other',
+  'data-lpignore': 'true',
 }
 
 function VertCard({ p, showAnswer, gradeResult, inputs, onInputChange }: CardProps) {
