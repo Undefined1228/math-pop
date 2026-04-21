@@ -351,8 +351,8 @@ export default function ControlHeader({
       </div>
 
       {/* 모바일 패널 */}
-      {mobileOpen && (
-        <div className="sm:hidden bg-navy border-t border-white/10 px-5 pt-4 pb-5">
+      <div className={`sm:hidden overflow-hidden transition-[max-height] duration-200 ease-in-out ${mobileOpen ? 'max-h-[640px]' : 'max-h-0'}`}>
+        <div className="bg-navy border-t border-white/10 px-5 pt-4 pb-5">
 
           <MobileSection label="셈 방식">
             <ModeToggle />
@@ -436,7 +436,7 @@ export default function ControlHeader({
           </div>
 
         </div>
-      )}
+      </div>
     </header>
   )
 }

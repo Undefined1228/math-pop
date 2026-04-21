@@ -32,3 +32,19 @@ body {
 #root {
   min-height: 100vh;
 }
+
+@media print {
+  @page {
+    size: A4;
+    margin: 12mm 15mm;
+  }
+
+  body {
+    background-color: #fff;
+  }
+
+  input {
+    color: transparent;
+    caret-color: transparent;
+  }
+}

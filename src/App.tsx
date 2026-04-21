@@ -28,6 +28,11 @@ export default function App() {
     resetState()
   }
 
+  const handleModeChange = (m: Mode) => {
+    setMode(m)
+    resetState()
+  }
+
   const handlePagesChange = (p: number) => {
     setPages(p)
     if (p > problems.length) {
@@ -41,6 +46,20 @@ export default function App() {
   }
 
   const handleShowAnswer = () => setShowAnswer(p => !p)
+
+  const handlePrintAnswer = () => {
+    if (showAnswer) {
+      window.print()
+      return
+    }
+    setShowAnswer(true)
+    const afterPrint = () => {
+      setShowAnswer(false)
+      window.removeEventListener('afterprint', afterPrint)
+    }
+    window.addEventListener('afterprint', afterPrint)
+    setTimeout(() => window.print(), 50)
+  }
 
   const handleGrade = () => {
     if (Object.keys(gradedResults).length > 0) {
@@ -73,14 +92,14 @@ export default function App() {
         ops={ops}
         range={range}
         pages={pages}
-        onModeChange={setMode}
+        onModeChange={handleModeChange}
         onOpsChange={setOps}
         onRangeChange={setRange}
         onPagesChange={handlePagesChange}
         onGenerate={generate}
         onShowAnswer={handleShowAnswer}
         onGrade={handleGrade}
-        onPrintAnswer={() => window.print()}
+        onPrintAnswer={handlePrintAnswer}
       />
       {gradedCount > 0 && (
         <div className="max-w-[880px] mx-auto px-5 pt-5 print:hidden">
