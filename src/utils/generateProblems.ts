@@ -1,51 +1,133 @@
 import type { Op, Range } from '../components/ControlHeader'
 
+export type OpSym = '+' | '-' | '×' | '÷'
+
 export interface Problem {
   id: number
-  a: number
-  b: number
-  op: Op
+  operands: number[]
+  ops: OpSym[]
   answer: number
+  digits: number
 }
 
 export const PROBLEMS_PER_PAGE = 20
 
+const OP_SYM: Record<Op, OpSym> = { add: '+', sub: '-', mul: '×', div: '÷' }
+
 const RANGE_BOUNDS: Record<Range, [number, number]> = {
-  '1-9': [1, 9],
-  '10-99': [10, 99],
-  '1-99': [1, 99],
+  '1d': [1, 9],
+  '2d': [10, 99],
+  '3d': [100, 999],
+  '4d': [1000, 9999],
+  'mix': [100, 9999],
+  'triple': [100, 9999],
 }
 
 function rnd(min: number, max: number) {
   return Math.floor(Math.random() * (max - min + 1)) + min
 }
 
-function makeProblem(id: number, ops: Op[], range: Range): Problem {
-  const op = ops[Math.floor(Math.random() * ops.length)]
+function digitsOf(n: number) {
+  return String(n).length
+}
+
+function gen2Term(id: number, op: Op, range: Range): Problem {
   const [min, max] = RANGE_BOUNDS[range]
 
-  let a: number, b: number
+  let a: number, b: number, answer: number
 
-  if (op === 'sub') {
-    a = rnd(min, max)
-    b = rnd(min, a)
-  } else if (op === 'div') {
-    b = rnd(min, max)
-    const maxQ = Math.floor(max / b)
-    const q = rnd(1, Math.max(1, maxQ))
-    a = b * q
+  if (op === 'add') {
+    if (range === 'mix') {
+      a = rndMix()
+      b = rndMix()
+    } else {
+      a = rnd(min, max)
+      b = rnd(min, max)
+    }
+    answer = a + b
+  } else if (op === 'sub') {
+    if (range === 'mix') {
+      a = rndMix()
+      b = rnd(min, a)
+    } else {
+      a = rnd(min, max)
+      b = rnd(min, a)
+    }
+    answer = a - b
+  } else if (op === 'mul') {
+    if (range === '1d') {
+      a = rnd(1, 9)
+      b = rnd(1, 9)
+    } else {
+      a = rnd(1, 9)
+      b = rnd(10, 99)
+    }
+    answer = a * b
   } else {
-    a = rnd(min, max)
-    b = rnd(min, max)
+    if (range === '1d') {
+      b = rnd(1, 9)
+      const q = rnd(1, Math.floor(9 / b))
+      a = b * q
+      answer = q
+    } else {
+      b = rnd(2, 9)
+      const q = rnd(Math.ceil(10 / b), Math.floor(99 / b))
+      a = b * q
+      answer = q
+    }
   }
 
-  const answer =
-    op === 'add' ? a + b :
-    op === 'sub' ? a - b :
-    op === 'mul' ? a * b :
-    a / b
+  const digits = Math.max(digitsOf(a), digitsOf(b), digitsOf(answer))
+  return {
+    id,
+    operands: [a, b],
+    ops: [OP_SYM[op]],
+    answer,
+    digits,
+  }
+}
 
-  return { id, a, b, op, answer }
+function rndMix() {
+  return Math.random() < 0.5 ? rnd(100, 999) : rnd(1000, 9999)
+}
+
+function gen3Term(id: number): Problem {
+  const MAX_TRIES = 50
+  for (let t = 0; t < MAX_TRIES; t++) {
+    const a = rnd(100, 9999)
+    const op1: OpSym = Math.random() < 0.5 ? '+' : '-'
+    const b = rnd(100, 9999)
+    const mid = op1 === '+' ? a + b : a - b
+    if (mid < 0) continue
+    const op2: OpSym = Math.random() < 0.5 ? '+' : '-'
+    const c = rnd(100, 9999)
+    const answer = op2 === '+' ? mid + c : mid - c
+    if (answer < 0) continue
+
+    const digits = Math.max(digitsOf(a), digitsOf(b), digitsOf(c), digitsOf(answer))
+    return {
+      id,
+      operands: [a, b, c],
+      ops: [op1, op2],
+      answer,
+      digits,
+    }
+  }
+  console.warn('gen3Term: exhausted retries, using fallback')
+  const a = 500, b = 200, c = 100
+  return {
+    id,
+    operands: [a, b, c],
+    ops: ['+', '-'],
+    answer: a + b - c,
+    digits: 4,
+  }
+}
+
+function makeProblem(id: number, ops: Op[], range: Range): Problem {
+  if (range === 'triple') return gen3Term(id)
+  const op = ops[Math.floor(Math.random() * ops.length)]
+  return gen2Term(id, op, range)
 }
 
 export function generateProblems(pages: number, ops: Op[], range: Range): Problem[][] {

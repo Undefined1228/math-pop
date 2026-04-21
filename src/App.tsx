@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react'
-import ControlHeader, { type Mode, type Op, type Range } from './components/ControlHeader'
+import ControlHeader, { type Mode, type Op, type Range, RANGE_LABELS, OP_LABELS } from './components/ControlHeader'
 import Worksheet from './components/Worksheet'
 import { generateProblems, type Problem } from './utils/generateProblems'
 
 export default function App() {
   const [mode, setMode] = useState<Mode>('vert')
   const [ops, setOps] = useState<Op[]>(['add'])
-  const [range, setRange] = useState<Range>('10-99')
+  const [range, setRange] = useState<Range>('2d')
   const [pages, setPages] = useState(1)
   const [problems, setProblems] = useState<Problem[][]>([])
   const [inputs, setInputs] = useState<Record<string, string>>({})
@@ -14,7 +14,7 @@ export default function App() {
   const [gradedResults, setGradedResults] = useState<Record<number, boolean>>({})
 
   useEffect(() => {
-    setProblems(generateProblems(1, ['add'], '10-99'))
+    setProblems(generateProblems(1, ['add'], '2d'))
   }, [])
 
   const resetState = () => {
@@ -70,7 +70,7 @@ export default function App() {
     for (const page of problems.slice(0, pages)) {
       for (const p of page) {
         if (mode === 'vert') {
-          const digits = [0, 1, 2, 3].map(i => inputs[`${p.id}-${i}`] || '').join('')
+          const digits = Array.from({ length: p.digits + 1 }, (_, i) => inputs[`${p.id}-${i}`] || '').join('')
           const userAns = digits.trim() ? parseInt(digits, 10) : NaN
           results[p.id] = userAns === p.answer
         } else {
@@ -84,6 +84,7 @@ export default function App() {
   const visibleProblems = problems.slice(0, pages)
   const gradedCount = Object.keys(gradedResults).length
   const correctCount = Object.values(gradedResults).filter(Boolean).length
+  const printLabel = [RANGE_LABELS[range], ...ops.map(o => OP_LABELS[o])].join(' · ')
 
   return (
     <>
@@ -118,6 +119,7 @@ export default function App() {
           gradedResults={gradedResults}
           inputs={inputs}
           onInputChange={handleInputChange}
+          printLabel={printLabel}
         />
       )}
     </>

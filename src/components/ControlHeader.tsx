@@ -2,11 +2,27 @@ import { useState, useEffect, useRef } from 'react'
 
 export type Mode = 'vert' | 'hori'
 export type Op = 'add' | 'sub' | 'mul' | 'div'
-export type Range = '1-9' | '10-99' | '1-99'
+export type Range = '1d' | '2d' | '3d' | '4d' | 'mix' | 'triple'
 
-const OP_LABELS: Record<Op, string> = { add: '덧셈', sub: '뺄셈', mul: '곱셈', div: '나눗셈' }
-const RANGE_LABELS: Record<Range, string> = { '1-9': '1 ~ 9', '10-99': '10 ~ 99', '1-99': '1 ~ 99' }
+export const OP_LABELS: Record<Op, string> = { add: '덧셈', sub: '뺄셈', mul: '곱셈', div: '나눗셈' }
+export const RANGE_LABELS: Record<Range, string> = {
+  '1d': '한 자리 (1 ~ 9)',
+  '2d': '두 자리 (10 ~ 99)',
+  '3d': '세 자리 (100 ~ 999)',
+  '4d': '네 자리 (1000 ~ 9999)',
+  'mix': '세·네 자리 혼합',
+  'triple': '세 수의 연산 (100 ~ 9999)',
+}
+const RANGE_ORDER: Range[] = ['1d', '2d', '3d', '4d', 'mix', 'triple']
 const ALL_OPS: Op[] = ['add', 'sub', 'mul', 'div']
+const RANGE_OPS_SUPPORT: Record<Range, Op[]> = {
+  '1d': ['add', 'sub', 'mul', 'div'],
+  '2d': ['add', 'sub', 'mul', 'div'],
+  '3d': ['add', 'sub'],
+  '4d': ['add', 'sub'],
+  'mix': ['add', 'sub'],
+  'triple': ['add', 'sub'],
+}
 const TIMER_OPTIONS = Array.from({ length: 8 }, (_, i) => (i + 3) * 60)
 const fmtOption = (s: number) => s < 60 ? `${s}초` : `${s / 60}분`
 const PAGE_COUNTS = Array.from({ length: 10 }, (_, i) => i + 1)
@@ -50,7 +66,16 @@ export default function ControlHeader({
   const [remaining, setRemaining] = useState(300)
   const [running, setRunning] = useState(false)
   const [timerAlert, setTimerAlert] = useState(false)
+  const [secretVisible, setSecretVisible] = useState(false)
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const longPressRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const handleTitleDown = () => {
+    longPressRef.current = setTimeout(() => setSecretVisible(v => !v), 600)
+  }
+  const handleTitleUp = () => {
+    if (longPressRef.current) { clearTimeout(longPressRef.current); longPressRef.current = null }
+  }
 
   useEffect(() => {
     if (running) {
@@ -100,9 +125,31 @@ export default function ControlHeader({
 
   const toggleDrop = (id: string) => setOpenDrop(p => p === id ? null : id)
 
+  const supportedOps = RANGE_OPS_SUPPORT[range]
+  const isOpEnabled = (op: Op) => supportedOps.includes(op)
+
+  const opTooltip = (op: Op): string | undefined => {
+    if (isOpEnabled(op)) return undefined
+    return `${RANGE_LABELS[range]}에서는 ${OP_LABELS[op]} 미지원`
+  }
+
   const toggleOp = (op: Op) => {
+    if (!isOpEnabled(op)) return
     if (ops.includes(op) && ops.length === 1) return
     onOpsChange(ops.includes(op) ? ops.filter(o => o !== op) : [...ops, op])
+  }
+
+  const handleRangeChange = (r: Range) => {
+    const nextSupported = RANGE_OPS_SUPPORT[r]
+    const filtered = ops.filter(o => nextSupported.includes(o))
+    const nextOps = filtered.length === 0 ? [nextSupported[0]] : filtered
+    if (
+      nextOps.length !== ops.length ||
+      nextOps.some((o, i) => o !== ops[i])
+    ) {
+      onOpsChange(nextOps)
+    }
+    onRangeChange(r)
   }
 
   const startTimer = () => {
@@ -218,7 +265,15 @@ export default function ControlHeader({
     <header className="sticky top-0 z-[100] bg-navy shadow-[0_3px_14px_rgba(0,0,0,0.3)] print:hidden">
       <div className="h-[58px] px-5 flex items-center gap-3">
 
-        <div className="font-heading text-[17px] font-bold text-white tracking-[-0.3px] whitespace-nowrap mr-1 shrink-0">
+        <div
+          className="font-heading text-[17px] font-bold text-white tracking-[-0.3px] whitespace-nowrap mr-1 shrink-0 select-none cursor-default"
+          onMouseDown={handleTitleDown}
+          onMouseUp={handleTitleUp}
+          onMouseLeave={handleTitleUp}
+          onTouchStart={handleTitleDown}
+          onTouchEnd={handleTitleUp}
+          onTouchCancel={handleTitleUp}
+        >
           MathPop
         </div>
 
@@ -227,6 +282,28 @@ export default function ControlHeader({
         {/* 데스크탑 컨트롤 */}
         <div className="flex items-center gap-3 flex-1 max-sm:hidden">
           <ModeToggle />
+          <VR />
+
+          {/* 범위 드롭다운 */}
+          <div className="relative" data-drop>
+            <button className={`${CTRL_BTN_CLS} min-w-[16rem] justify-between`} onClick={() => toggleDrop('range')}>
+              범위: {RANGE_LABELS[range]} <span className="text-[9px] opacity-60">▾</span>
+            </button>
+            {openDrop === 'range' && (
+              <div className={MENU_CLS}>
+                {RANGE_ORDER.map(r => (
+                  <div
+                    key={r}
+                    className={`${ITEM_CLS} ${range === r ? 'text-accent font-bold' : ''}`}
+                    onClick={() => { handleRangeChange(r); setOpenDrop(null) }}
+                  >
+                    {RANGE_LABELS[r]}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
           <VR />
 
           {/* 연산 드롭다운 */}
@@ -240,45 +317,30 @@ export default function ControlHeader({
             </button>
             {openDrop === 'ops' && (
               <div className={MENU_CLS}>
-                {ALL_OPS.map(op => (
-                  <label
-                    key={op}
-                    className={`${ITEM_CLS} ${ops.includes(op) ? 'text-accent font-bold' : ''}`}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={ops.includes(op)}
-                      onChange={() => toggleOp(op)}
-                      className="accent-accent w-[14px] h-[14px]"
-                    />
-                    {OP_LABELS[op]}
-                  </label>
-                ))}
+                {ALL_OPS.map(op => {
+                  const enabled = isOpEnabled(op)
+                  return (
+                    <label
+                      key={op}
+                      title={opTooltip(op)}
+                      className={`${ITEM_CLS} transition-opacity duration-150 ${ops.includes(op) ? 'text-accent font-bold' : ''} ${enabled ? '' : 'opacity-40 cursor-not-allowed hover:bg-transparent'}`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={ops.includes(op)}
+                        onChange={() => toggleOp(op)}
+                        disabled={!enabled}
+                        className="accent-accent w-[14px] h-[14px] disabled:cursor-not-allowed"
+                      />
+                      {OP_LABELS[op]}
+                    </label>
+                  )
+                })}
               </div>
             )}
           </div>
 
           <VR />
-
-          {/* 범위 드롭다운 */}
-          <div className="relative" data-drop>
-            <button className={CTRL_BTN_CLS} onClick={() => toggleDrop('range')}>
-              범위: {RANGE_LABELS[range]} <span className="text-[9px] opacity-60">▾</span>
-            </button>
-            {openDrop === 'range' && (
-              <div className={MENU_CLS}>
-                {(['1-9', '10-99', '1-99'] as Range[]).map(r => (
-                  <div
-                    key={r}
-                    className={`${ITEM_CLS} ${range === r ? 'text-accent font-bold' : ''}`}
-                    onClick={() => { onRangeChange(r); setOpenDrop(null) }}
-                  >
-                    {RANGE_LABELS[r]}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
 
           {/* 페이지 드롭다운 */}
           <div className="relative" data-drop>
@@ -320,7 +382,7 @@ export default function ControlHeader({
           </button>
 
           {/* 숨겨진 버튼 */}
-          <div className="flex gap-[3px] max-sm:hidden">
+          {secretVisible && <div className="flex gap-[3px] max-sm:hidden">
             {([
               { title: '정답보기', icon: '👁', fn: onShowAnswer },
               { title: '채점', icon: '✓', fn: onGrade },
@@ -336,7 +398,7 @@ export default function ControlHeader({
                 {icon}
               </button>
             ))}
-          </div>
+          </div>}
 
           {/* 햄버거 버튼 */}
           <button
@@ -360,39 +422,18 @@ export default function ControlHeader({
 
           <div className="h-px bg-white/10 my-4" />
 
-          <MobileSection label="연산 종류">
-            <div className="flex gap-2 flex-wrap">
-              {ALL_OPS.map(op => (
-                <label
-                  key={op}
-                  className="flex items-center gap-[6px] bg-white/[0.08] border border-white/15 rounded-[6px] px-3 py-[6px] text-white text-[13px] cursor-pointer font-sans"
-                >
-                  <input
-                    type="checkbox"
-                    checked={ops.includes(op)}
-                    onChange={() => toggleOp(op)}
-                    className="accent-accent w-[14px] h-[14px]"
-                  />
-                  {OP_LABELS[op]}
-                </label>
-              ))}
-            </div>
-          </MobileSection>
-
-          <div className="h-px bg-white/10 my-4" />
-
           <MobileSection label="숫자 범위">
             <div className="relative w-fit" data-drop>
-              <button className={CTRL_BTN_CLS} onClick={() => toggleDrop('m-range')}>
+              <button className={`${CTRL_BTN_CLS} min-w-[16rem] justify-between`} onClick={() => toggleDrop('m-range')}>
                 {RANGE_LABELS[range]} <span className="text-[9px] opacity-60">▾</span>
               </button>
               {openDrop === 'm-range' && (
                 <div className={MENU_CLS}>
-                  {(['1-9', '10-99', '1-99'] as Range[]).map(r => (
+                  {RANGE_ORDER.map(r => (
                     <div
                       key={r}
                       className={`${ITEM_CLS} ${range === r ? 'text-accent font-bold' : ''}`}
-                      onClick={() => { onRangeChange(r); setOpenDrop(null) }}
+                      onClick={() => { handleRangeChange(r); setOpenDrop(null) }}
                     >
                       {RANGE_LABELS[r]}
                     </div>
@@ -401,6 +442,34 @@ export default function ControlHeader({
               )}
             </div>
           </MobileSection>
+
+          <div className="h-px bg-white/10 my-4" />
+
+          <MobileSection label="연산 종류">
+            <div className="flex gap-2 flex-wrap">
+              {ALL_OPS.map(op => {
+                const enabled = isOpEnabled(op)
+                return (
+                  <label
+                    key={op}
+                    title={opTooltip(op)}
+                    className={`flex items-center gap-[6px] bg-white/[0.08] border border-white/15 rounded-[6px] px-3 py-[6px] text-white text-[13px] font-sans transition-opacity duration-150 ${enabled ? 'cursor-pointer' : 'opacity-40 cursor-not-allowed'}`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={ops.includes(op)}
+                      onChange={() => toggleOp(op)}
+                      disabled={!enabled}
+                      className="accent-accent w-[14px] h-[14px] disabled:cursor-not-allowed"
+                    />
+                    {OP_LABELS[op]}
+                  </label>
+                )
+              })}
+            </div>
+          </MobileSection>
+
+          <div className="h-px bg-white/10 my-4" />
 
           <MobileSection label="페이지 수">
             <div className="relative w-fit" data-drop>
@@ -429,11 +498,12 @@ export default function ControlHeader({
             <TimerWidget />
           </MobileSection>
 
-          <div className="h-px bg-white/10 my-4" />
-
-          <div className="flex items-center gap-2 flex-wrap">
-            <SecretBtns withPrint />
-          </div>
+          {secretVisible && <>
+            <div className="h-px bg-white/10 my-4" />
+            <div className="flex items-center gap-2 flex-wrap">
+              <SecretBtns withPrint />
+            </div>
+          </>}
 
         </div>
       </div>

@@ -9,17 +9,18 @@ interface Props {
   gradedResults: Record<number, boolean>
   inputs: Record<string, string>
   onInputChange: (key: string, val: string) => void
+  printLabel: string
 }
 
-const OP_SYMBOLS: Record<string, string> = {
-  add: '+',
-  sub: '−',
-  mul: '×',
-  div: '÷',
+const SYM_DISPLAY: Record<string, string> = {
+  '+': '+',
+  '-': '−',
+  '×': '×',
+  '÷': '÷',
 }
 
-function digit(n: number, pos: 0 | 1) {
-  const s = String(n).padStart(2, ' ')
+function digitAt(n: number, width: number, pos: number) {
+  const s = String(n).padStart(width, ' ')
   return s[pos] === ' ' ? '' : s[pos]
 }
 
@@ -59,21 +60,30 @@ const NO_FILL: React.InputHTMLAttributes<HTMLInputElement> = {
 
 function VertCard({ p, showAnswer, gradeResult, inputs, onInputChange }: CardProps) {
   const [focused, setFocused] = useState<string | null>(null)
-  const sym = OP_SYMBOLS[p.op]
-  const ansStr = String(p.answer).padStart(4, ' ')
+  const cols = p.digits + 1
+  const ansStr = String(p.answer).padStart(cols, ' ')
   const cell = 'flex items-center justify-center'
   const borderClass = gradeResult === undefined
     ? 'border border-stroke'
     : gradeResult ? 'border-2 border-green-400' : 'border-2 border-red-400'
 
+  const carryCols = Array.from({ length: cols }, (_, i) => i)
+  const ansCols = Array.from({ length: cols }, (_, i) => i)
+
   return (
     <div className="relative">
       <div className={`bg-paper rounded-[3px] overflow-hidden ${borderClass}`}>
-        <div className="grid grid-cols-4" style={{ gridTemplateRows: '18px 44px 44px 44px' }}>
-          {[0, 1, 2, 3].map(i => (
+        <div
+          className="grid"
+          style={{
+            gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
+            gridTemplateRows: `18px ${'44px '.repeat(p.operands.length).trim()} 44px`,
+          }}
+        >
+          {carryCols.map(i => (
             <div
-              key={i}
-              className={`border-b border-[#DDD9CB] ${i < 3 ? 'border-r border-r-[#DDD9CB]' : ''} flex items-center justify-center transition-colors duration-100 ${focused === 'c-' + i ? 'bg-[#E2DBC8]' : 'bg-[#F0EDE3]'}`}
+              key={`carry-${i}`}
+              className={`border-b border-[#DDD9CB] ${i < cols - 1 ? 'border-r border-r-[#DDD9CB]' : ''} flex items-center justify-center transition-colors duration-100 ${focused === 'c-' + i ? 'bg-[#E2DBC8]' : 'bg-[#F0EDE3]'}`}
             >
               <input
                 {...NO_FILL}
@@ -90,22 +100,35 @@ function VertCard({ p, showAnswer, gradeResult, inputs, onInputChange }: CardPro
             </div>
           ))}
 
-          <div className={`${cell} border-r border-b border-stroke`}>
-            <Circle n={p.id} />
-          </div>
-          <div className="border-r border-b border-stroke" />
-          <div className={`${cell} border-r border-b border-stroke font-mono text-[19px] font-medium`}>{digit(p.a, 0)}</div>
-          <div className={`${cell} border-b border-stroke font-mono text-[19px] font-medium`}>{digit(p.a, 1)}</div>
+          {p.operands.map((value, row) => {
+            const isFirstRow = row === 0
+            const symIdx = row - 1
+            const sym = isFirstRow ? '' : SYM_DISPLAY[p.ops[symIdx]] || ''
+            const operandDigits = Array.from({ length: p.digits }, (_, i) => i)
+            return (
+              <React.Fragment key={`row-${row}`}>
+                <div className={`${cell} border-r border-b border-stroke ${isFirstRow ? '' : 'font-mono text-[22px] text-navy'}`}>
+                  {isFirstRow ? <Circle n={p.id} /> : sym}
+                </div>
+                {operandDigits.map(i => {
+                  const isLastCol = i === p.digits - 1
+                  return (
+                    <div
+                      key={`r${row}-d${i}`}
+                      className={`${cell} border-b border-stroke ${isLastCol ? '' : 'border-r'} font-mono text-[19px] font-medium`}
+                    >
+                      {digitAt(value, p.digits, i)}
+                    </div>
+                  )
+                })}
+              </React.Fragment>
+            )
+          })}
 
-          <div className={`${cell} border-r border-b border-stroke font-mono text-[22px] text-navy`}>{sym}</div>
-          <div className="border-r border-b border-stroke" />
-          <div className={`${cell} border-r border-b border-stroke font-mono text-[19px] font-medium`}>{digit(p.b, 0)}</div>
-          <div className={`${cell} border-b border-stroke font-mono text-[19px] font-medium`}>{digit(p.b, 1)}</div>
-
-          {[0, 1, 2, 3].map(i => (
+          {ansCols.map(i => (
             <div
-              key={i}
-              className={`relative ${cell} ${i < 3 ? 'border-r border-stroke' : ''} transition-colors duration-100 ${focused === 'a-' + i ? 'bg-amber-100' : 'bg-white'}`}
+              key={`ans-${i}`}
+              className={`relative ${cell} ${i < cols - 1 ? 'border-r border-stroke' : ''} transition-colors duration-100 ${focused === 'a-' + i ? 'bg-amber-100' : 'bg-white'}`}
               style={{ borderTop: '2.5px solid #1C2B3A' }}
             >
               <input
@@ -135,16 +158,22 @@ function VertCard({ p, showAnswer, gradeResult, inputs, onInputChange }: CardPro
 }
 
 function HoriCard({ p, showAnswer, gradeResult, inputs, onInputChange }: CardProps) {
-  const sym = OP_SYMBOLS[p.op]
   const borderClass = gradeResult === undefined
     ? 'border border-stroke'
     : gradeResult ? 'border-2 border-green-400' : 'border-2 border-red-400'
+
+  const answerMaxLen = Math.max(5, String(p.answer).length + 1)
 
   return (
     <div className={`relative bg-paper rounded-[3px] h-[60px] px-[14px] flex items-end pb-[10px] gap-[10px] ${borderClass}`}>
       <Circle n={p.id} />
       <div className="font-mono text-[20px] font-medium whitespace-nowrap text-text-base">
-        {p.a} <span className="text-navy mx-1">{sym}</span> {p.b}
+        {p.operands.map((v, i) => (
+          <React.Fragment key={i}>
+            {i > 0 && <span className="text-navy mx-1">{SYM_DISPLAY[p.ops[i - 1]]}</span>}
+            {v}
+          </React.Fragment>
+        ))}
       </div>
       <div className="font-mono text-[20px] text-navy ml-[2px]">=</div>
       <div
@@ -156,9 +185,9 @@ function HoriCard({ p, showAnswer, gradeResult, inputs, onInputChange }: CardPro
           type="tel"
           inputMode="numeric"
           pattern="[0-9]*"
-          maxLength={5}
+          maxLength={answerMaxLen}
           value={inputs[`${p.id}`] || ''}
-          onChange={e => onInputChange(`${p.id}`, e.target.value.replace(/\D/g, '').slice(0, 5))}
+          onChange={e => onInputChange(`${p.id}`, e.target.value.replace(/\D/g, '').slice(0, answerMaxLen))}
           className={`w-full border-none outline-none bg-transparent text-center font-mono text-[19px] font-medium text-accent caret-accent pb-[2px] ${showAnswer ? 'opacity-20' : ''}`}
         />
         {showAnswer && (
@@ -172,13 +201,16 @@ function HoriCard({ p, showAnswer, gradeResult, inputs, onInputChange }: CardPro
   )
 }
 
-export default function Worksheet({ mode, pages, showAnswer, gradedResults, inputs, onInputChange }: Props) {
+export default function Worksheet({ mode, pages, showAnswer, gradedResults, inputs, onInputChange, printLabel }: Props) {
   const isHori = mode === 'hori'
   const total = pages.length
 
   return (
     <form autoComplete="off" onSubmit={e => e.preventDefault()} className="contents">
     <main className="max-w-[880px] mx-auto my-7 mb-14 px-5 print:m-0 print:p-0 print:max-w-none">
+      <div className="hidden print:block text-[12px] font-sans text-[#666] mb-3 tracking-[0.3px]">
+        {printLabel}
+      </div>
       {pages.map((problems, pi) => (
         <div key={pi} className="mb-12 print:mb-0 print:break-after-page last:print:break-after-avoid">
           <div className="flex items-center gap-3 mb-4 print:hidden">
