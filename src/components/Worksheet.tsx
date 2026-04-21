@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
-import type { Problem } from '../utils/generateProblems'
-import type { Mode } from './ControlHeader'
+import type { Problem } from '../domain/problem'
+import type { Mode } from '../domain/types'
 
 interface Props {
   mode: Mode

@@ -1,16 +1,5 @@
-import type { Op, Range } from '../components/ControlHeader'
-
-export type OpSym = '+' | '-' | '×' | '÷'
-
-export interface Problem {
-  id: number
-  operands: number[]
-  ops: OpSym[]
-  answer: number
-  digits: number
-}
-
-export const PROBLEMS_PER_PAGE = 20
+import type { Op, Range } from './types'
+import { PROBLEMS_PER_PAGE, type OpSym, type Problem } from './problem'
 
 const OP_SYM: Record<Op, OpSym> = { add: '+', sub: '-', mul: '×', div: '÷' }
 
@@ -31,51 +20,54 @@ function digitsOf(n: number) {
   return String(n).length
 }
 
-function gen2Term(id: number, op: Op, range: Range): Problem {
+function rndMix() {
+  return Math.random() < 0.5 ? rnd(100, 999) : rnd(1000, 9999)
+}
+
+type Pair = [a: number, b: number, answer: number]
+
+function genAdd(range: Range): Pair {
   const [min, max] = RANGE_BOUNDS[range]
+  const a = range === 'mix' ? rndMix() : rnd(min, max)
+  const b = range === 'mix' ? rndMix() : rnd(min, max)
+  return [a, b, a + b]
+}
 
-  let a: number, b: number, answer: number
+function genSub(range: Range): Pair {
+  const [min, max] = RANGE_BOUNDS[range]
+  const a = range === 'mix' ? rndMix() : rnd(min, max)
+  const b = rnd(min, a)
+  return [a, b, a - b]
+}
 
-  if (op === 'add') {
-    if (range === 'mix') {
-      a = rndMix()
-      b = rndMix()
-    } else {
-      a = rnd(min, max)
-      b = rnd(min, max)
-    }
-    answer = a + b
-  } else if (op === 'sub') {
-    if (range === 'mix') {
-      a = rndMix()
-      b = rnd(min, a)
-    } else {
-      a = rnd(min, max)
-      b = rnd(min, a)
-    }
-    answer = a - b
-  } else if (op === 'mul') {
-    if (range === '1d') {
-      a = rnd(1, 9)
-      b = rnd(1, 9)
-    } else {
-      a = rnd(1, 9)
-      b = rnd(10, 99)
-    }
-    answer = a * b
-  } else {
-    if (range === '1d') {
-      b = rnd(1, 9)
-      const q = rnd(1, Math.floor(9 / b))
-      a = b * q
-      answer = q
-    } else {
-      b = rnd(2, 9)
-      const q = rnd(Math.ceil(10 / b), Math.floor(99 / b))
-      a = b * q
-      answer = q
-    }
+function genMul(range: Range): Pair {
+  if (range === '1d') {
+    const a = rnd(1, 9)
+    const b = rnd(1, 9)
+    return [a, b, a * b]
   }
+  const a = rnd(1, 9)
+  const b = rnd(10, 99)
+  return [a, b, a * b]
+}
+
+function genDiv(range: Range): Pair {
+  if (range === '1d') {
+    const b = rnd(1, 9)
+    const q = rnd(1, Math.floor(9 / b))
+    return [b * q, b, q]
+  }
+  const b = rnd(2, 9)
+  const q = rnd(Math.ceil(10 / b), Math.floor(99 / b))
+  return [b * q, b, q]
+}
+
+function gen2Term(id: number, op: Op, range: Range): Problem {
+  const [a, b, answer] =
+    op === 'add' ? genAdd(range) :
+    op === 'sub' ? genSub(range) :
+    op === 'mul' ? genMul(range) :
+    genDiv(range)
 
   const digits = Math.max(digitsOf(a), digitsOf(b), digitsOf(answer))
   return {
@@ -85,10 +77,6 @@ function gen2Term(id: number, op: Op, range: Range): Problem {
     answer,
     digits,
   }
-}
-
-function rndMix() {
-  return Math.random() < 0.5 ? rnd(100, 999) : rnd(1000, 9999)
 }
 
 function gen3Term(id: number): Problem {

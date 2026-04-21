@@ -1,7 +1,10 @@
 import { useState, useEffect } from 'react'
-import ControlHeader, { type Mode, type Op, type Range, RANGE_LABELS, OP_LABELS } from './components/ControlHeader'
+import ControlHeader from './components/ControlHeader'
 import Worksheet from './components/Worksheet'
-import { generateProblems, type Problem } from './utils/generateProblems'
+import type { Mode, Op, Range } from './domain/types'
+import { OP_LABELS, RANGE_LABELS } from './domain/labels'
+import type { Problem } from './domain/problem'
+import { generateProblems } from './domain/generate'
 
 export default function App() {
   const [mode, setMode] = useState<Mode>('vert')

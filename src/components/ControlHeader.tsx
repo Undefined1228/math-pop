@@ -1,28 +1,13 @@
 import { useState, useEffect, useRef } from 'react'
+import type { Mode, Op, Range } from '../domain/types'
+import {
+  OP_LABELS,
+  RANGE_LABELS,
+  RANGE_ORDER,
+  ALL_OPS,
+  RANGE_OPS_SUPPORT,
+} from '../domain/labels'
 
-export type Mode = 'vert' | 'hori'
-export type Op = 'add' | 'sub' | 'mul' | 'div'
-export type Range = '1d' | '2d' | '3d' | '4d' | 'mix' | 'triple'
-
-export const OP_LABELS: Record<Op, string> = { add: '덧셈', sub: '뺄셈', mul: '곱셈', div: '나눗셈' }
-export const RANGE_LABELS: Record<Range, string> = {
-  '1d': '한 자리 (1 ~ 9)',
-  '2d': '두 자리 (10 ~ 99)',
-  '3d': '세 자리 (100 ~ 999)',
-  '4d': '네 자리 (1000 ~ 9999)',
-  'mix': '세·네 자리 혼합',
-  'triple': '세 수의 연산 (100 ~ 9999)',
-}
-const RANGE_ORDER: Range[] = ['1d', '2d', '3d', '4d', 'mix', 'triple']
-const ALL_OPS: Op[] = ['add', 'sub', 'mul', 'div']
-const RANGE_OPS_SUPPORT: Record<Range, Op[]> = {
-  '1d': ['add', 'sub', 'mul', 'div'],
-  '2d': ['add', 'sub', 'mul', 'div'],
-  '3d': ['add', 'sub'],
-  '4d': ['add', 'sub'],
-  'mix': ['add', 'sub'],
-  'triple': ['add', 'sub'],
-}
 const TIMER_OPTIONS = Array.from({ length: 8 }, (_, i) => (i + 3) * 60)
 const fmtOption = (s: number) => s < 60 ? `${s}초` : `${s / 60}분`
 const PAGE_COUNTS = Array.from({ length: 10 }, (_, i) => i + 1)
@@ -214,8 +199,9 @@ export default function ControlHeader({
         )}
       </div>
       <button
-        className="h-[34px] px-[15px] rounded-[6px] border-0 bg-accent text-white text-[13px] cursor-pointer font-sans transition-[background] duration-[130ms] hover:bg-accent-h"
+        className="h-[34px] px-[15px] rounded-[6px] border-0 bg-accent text-white text-[13px] font-sans transition-[background,opacity] duration-[130ms] hover:bg-accent-h disabled:opacity-40 disabled:cursor-not-allowed"
         onClick={startTimer}
+        disabled={running}
       >
         시작
       </button>
@@ -411,6 +397,19 @@ export default function ControlHeader({
           </button>
         </div>
       </div>
+
+      {/* 타이머 진행 바 */}
+      {remaining < timerDuration && (
+        <div className="h-[5px] w-full bg-white/[0.08] print:hidden">
+          <div
+            className="h-full transition-[width,background-color] duration-1000 ease-linear"
+            style={{
+              width: `${(remaining / timerDuration) * 100}%`,
+              backgroundColor: `hsl(${(remaining / timerDuration) * 120}, 72%, 50%)`,
+            }}
+          />
+        </div>
+      )}
 
       {/* 모바일 패널 */}
       <div className={`sm:hidden overflow-hidden transition-[max-height] duration-200 ease-in-out ${mobileOpen ? 'max-h-[640px]' : 'max-h-0'}`}>
