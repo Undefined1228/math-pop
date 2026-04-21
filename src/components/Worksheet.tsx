@@ -103,7 +103,7 @@ function VertCard({ p, showAnswer, gradeResult, inputs, onInputChange }: CardPro
           {[0, 1, 2, 3].map(i => (
             <div
               key={i}
-              className={`relative ${cell} ${i < 3 ? 'border-r border-stroke' : ''} transition-colors duration-100 ${focused === 'a-' + i ? 'bg-amber-50' : 'bg-[#FDFAF3]'}`}
+              className={`relative ${cell} ${i < 3 ? 'border-r border-stroke' : ''} transition-colors duration-100 ${focused === 'a-' + i ? 'bg-amber-100' : 'bg-white'}`}
               style={{ borderTop: '2.5px solid #1C2B3A' }}
             >
               <input
@@ -175,6 +175,7 @@ export default function Worksheet({ mode, pages, showAnswer, gradedResults, inpu
   const total = pages.length
 
   return (
+    <form autoComplete="off" onSubmit={e => e.preventDefault()} className="contents">
     <main className="max-w-[880px] mx-auto my-7 mb-14 px-5 print:m-0 print:p-0 print:max-w-none">
       {pages.map((problems, pi) => (
         <div key={pi} className="mb-12 print:mb-0 print:break-after-page last:print:break-after-avoid">
@@ -199,5 +200,6 @@ export default function Worksheet({ mode, pages, showAnswer, gradedResults, inpu
         </div>
       ))}
     </main>
+    </form>
   )
 }
