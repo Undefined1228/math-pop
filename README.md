@@ -1,73 +1,49 @@
-# React + TypeScript + Vite
+# MathPop
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+초등학생을 위한 수학 연산 학습지 생성기입니다. 덧셈·뺄셈·곱셈·나눗셈 문제를 즉석에서 만들고, 채점하고, 인쇄할 수 있습니다.
 
-Currently, two official plugins are available:
+## 기능
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **세로셈 / 가로셈** 전환
+- **숫자 범위** 선택: 한 자리 ~ 네 자리, 세·네 자리 혼합, 세 수의 연산
+- **연산 종류** 복수 선택: 덧셈, 뺄셈, 곱셈, 나눗셈
+- **페이지 수** 조절 (1 ~ 10페이지, 페이지당 20문제)
+- **타이머**: 3분 ~ 10분, 종료 시 비프음 알림
+- **채점**: 입력값 대조 후 O/X 즉시 표시
+- **정답 보기** 및 **정답지 인쇄** 지원
+- 모바일 반응형 (햄버거 메뉴)
 
-## React Compiler
+## 스택
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- React 19 + TypeScript
+- Vite
+- Tailwind CSS v4
 
-## Expanding the ESLint configuration
+## 시작하기
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+빌드:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm run build
 ```
+
+## 구조
+
+```
+src/
+├── components/
+│   ├── ControlHeader.tsx   # 상단 컨트롤 바 (모드·범위·연산·타이머)
+│   └── Worksheet.tsx       # 문제 카드 렌더링 (세로셈·가로셈)
+├── utils/
+│   └── generateProblems.ts # 문제 생성 로직
+└── App.tsx                 # 상태 관리 및 채점
+```
+
+## 숨겨진 기능
+
+헤더의 **MathPop** 타이틀을 0.6초 이상 길게 누르면 정답 보기·채점·정답지 인쇄·타이머 정지 버튼이 토글됩니다.
