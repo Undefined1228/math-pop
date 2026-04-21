@@ -178,6 +178,10 @@ export default function Worksheet({ mode, pages, showAnswer, gradedResults, inpu
 
   return (
     <form autoComplete="off" onSubmit={e => e.preventDefault()} className="contents">
+    <div aria-hidden="true" style={{ position: 'absolute', top: -9999, left: -9999, width: 1, height: 1, overflow: 'hidden' }}>
+      <input type="text" tabIndex={-1} autoComplete="username" readOnly />
+      <input type="password" tabIndex={-1} autoComplete="current-password" readOnly />
+    </div>
     <main className="max-w-[880px] mx-auto my-7 mb-14 px-5 print:m-0 print:p-0 print:max-w-none">
       {pages.map((problems, pi) => (
         <div key={pi} className="mb-12 print:mb-0 print:break-after-page last:print:break-after-avoid">
