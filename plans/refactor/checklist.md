@@ -49,24 +49,24 @@
 
 ## Phase 4 — UI 프리미티브
 
-- [ ] `src/components/ui/Dropdown.tsx`
-  - 현재 `ControlHeader.tsx`의 `MENU_CLS`, `ITEM_CLS`, `CTRL_BTN_CLS`를 흡수
-  - props: `label`, `open`, `onToggle`, `items: { key, label, active }[]`, `onSelect`
-  - 데스크탑·모바일 범위/페이지 드롭다운이 이걸 재사용
-- [ ] 단, 2회 이상 동일 구조가 반복될 때만 추출. 연산 드롭다운은 체크박스 기반이라 별도 컴포넌트로 둘지 판단.
+- [x] `src/components/ui/Dropdown.tsx`
+  - 현재 `ControlHeader.tsx`의 `MENU_CLS`, `ITEM_CLS`, `CTRL_BTN_CLS`를 흡수 (연산 드롭다운에선 import해 재사용)
+  - props: `label`, `open`, `onToggle`, `items: { key, label, active }[]`, `onSelect`, `wide?`
+  - 데스크탑·모바일 범위/페이지 드롭다운 + 타이머 드롭다운이 이걸 재사용 (총 5곳)
+- [x] 연산 드롭다운은 체크박스 기반이라 Phase 5에서 `OpsDropdown.tsx`로 분리 예정.
 
 ## Phase 5 — ControlHeader 분할
 
 `src/components/ControlHeader/` 하위로 분할. 각 파일은 자체 props만 받고, 상위 `index.tsx`가 조립만 담당.
 
-- [ ] `ModeToggle.tsx` — `mode`, `onModeChange`
-- [ ] `RangeDropdown.tsx` — `range`, `onRangeChange`, `ops`, `onOpsChange` (range 전환 시 ops 필터 로직 포함)
-- [ ] `OpsDropdown.tsx` — `range`, `ops`, `onOpsChange`
-- [ ] `PagesDropdown.tsx` — `pages`, `onPagesChange`
-- [ ] `TimerWidget.tsx` — `useTimer` 훅 소비, `stopTimer`를 부모에 노출 (시크릿 버튼용)
-- [ ] `SecretActions.tsx` — `onShowAnswer`, `onGrade`, `onPrintAnswer`, `onStopTimer`, `withPrint?` prop
-- [ ] `MobilePanel.tsx` — 햄버거 토글된 상태에서의 렌더링
-- [ ] `index.tsx` — `secretVisible` 상태(롱프레스)만 보유하고 위 컴포넌트들을 배치
+- [x] `ModeToggle.tsx` — `mode`, `onModeChange`
+- [x] `RangeDropdown.tsx` — `range`, `onRangeChange`, `ops`, `onOpsChange`, `showPrefix?` (range 전환 시 ops 필터 로직 포함)
+- [x] `OpsDropdown.tsx` — `range`, `ops`, `onOpsChange` (데스크탑 체크박스 드롭다운)
+- [x] `PagesDropdown.tsx` — `pages`, `onPagesChange`
+- [x] `TimerWidget.tsx` — 타이머 UI (드롭다운 + 시작 + 카운트다운). `useTimer`는 `index.tsx`에서 호출해 props로 주입 (`stopTimer`는 시크릿 버튼과 공유)
+- [x] `SecretActions.tsx` — `onShowAnswer`, `onGrade`, `onPrintAnswer`, `onStopTimer`, `withPrint?` prop
+- [x] `MobilePanel.tsx` — 햄버거 토글된 상태에서의 렌더링. 내부에 모바일 ops 체크박스 리스트 포함
+- [x] `index.tsx` — `openDrop`·`mobileOpen`·`timerDuration`·`secretVisible` 상태 보유, `useTimer`/`useLongPress`/`useOutsideClick` 호출 후 하위 컴포넌트 배치
 
 > ✅ 검증: 데스크탑·모바일 양쪽에서 모든 컨트롤이 기존과 동일하게 동작. 햄버거 애니메이션, 타이머 진행 바, 시크릿 버튼 토글 확인.
 
