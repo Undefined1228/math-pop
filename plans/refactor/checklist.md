@@ -1,93 +1,60 @@
-# 리팩토링 체크리스트
+# 리팩토링 후속 작업
 
-각 단계는 독립적으로 **커밋 가능**하도록 순서화되어 있다.
-모든 단계 완료 후에도 UI·동작·스타일은 현재와 동일해야 한다.
+Phase 1~7 리팩토링은 모두 완료되었다 (`refactor/structure` 브랜치, 커밋 이력 참고).
+여기부터는 기존 계획에서 "범위 밖"으로 미뤄뒀던 작업을 실행 가능한 단위로 정리한다.
+각 섹션은 독립적으로 진행·커밋할 수 있다.
 
-## Phase 1 — 도메인 레이어 분리
+## 1. 테스트 프레임워크 도입 (Vitest)
 
-- [x] `src/domain/types.ts` 생성: `Mode`, `Op`, `Range`를 `ControlHeader.tsx`에서 이동
-- [x] `src/domain/labels.ts` 생성: `OP_LABELS`, `RANGE_LABELS`, `RANGE_ORDER`, `RANGE_OPS_SUPPORT`, `ALL_OPS` 이동
-- [x] `src/domain/problem.ts` 생성: `Problem`, `OpSym`, `PROBLEMS_PER_PAGE` 이동 (`utils/generateProblems.ts` 분해)
-- [x] `src/domain/generate.ts` 생성: `generateProblems` 본체 이동, 연산별 전략을 작은 함수로 분리
-  - `genAdd(range) → [a, b, answer]`
-  - `genSub(range) → [a, b, answer]`
-  - `genMul(range) → [a, b, answer]`
-  - `genDiv(range) → [a, b, answer]`
-  - `gen3Term` 유지 (재시도 로직 그대로)
-- [x] import 경로 일괄 갱신 (`App.tsx`, `Worksheet.tsx`, 그리고 새 파일들끼리)
-- [x] `src/utils/generateProblems.ts` 삭제 또는 re-export 셸만 유지 후 다음 커밋에서 제거
+도메인 로직과 훅이 분리되었으므로 테스트 추가 비용이 낮아졌다.
 
-> ✅ 검증: `npm run build` 통과, 기존 페이지 로드 및 문제 생성 동일.
+- [ ] 의존성 설치: `vitest`, `@testing-library/react`, `@testing-library/user-event`, `jsdom`
+- [ ] `vite.config.ts`에 `test.environment = 'jsdom'` 추가, `package.json`에 `"test": "vitest"` 스크립트 등록
+- [ ] `src/domain/generate.test.ts`
+  - 각 연산(`add/sub/mul/div`)이 범위별(`1d/2d/3d/4d/mix`) 제약을 만족하는지
+  - `sub`는 결과가 0 이상, `div`는 나머지 없음
+  - `gen3Term` 재시도 후에도 제약을 만족하는지 (시드 고정 또는 반복 실행)
+- [ ] `src/domain/grade.test.ts`
+  - `inputKey` / `carryKey` 키 포맷 고정
+  - `gradeProblem` 가로셈/세로셈 정답·오답·빈칸 케이스
+  - `gradeAll`이 page 단위 결과를 올바르게 합치는지
+- [ ] `src/hooks/useTimer.test.tsx`
+  - `vi.useFakeTimers()`로 카운트다운 검증
+  - `durationSeconds` 변경 시 상태 리셋
+  - 0 도달 시 `alert` true + `running` false
+- [ ] (선택) GitHub Actions에 `npm run lint && npm run test && npm run build` 추가
 
-## Phase 2 — 채점 로직 분리
+## 2. Tailwind 클래스 문자열 정리
 
-- [x] `src/domain/grade.ts` 생성
-  - `inputKey(pid, idx)`, `carryKey(pid, idx)` 같은 키 생성 함수
-  - `gradeProblem(problem, mode, inputs): boolean` 순수 함수 (현재 `App.tsx` `handleGrade`에서 분기 이관)
-  - `gradeAll(pages, mode, inputs): Record<number, boolean>`
-- [x] `App.tsx`의 `handleGrade`는 `gradeAll` 호출만 하도록 축소
-- [x] `Worksheet.tsx`·`VertCard` 내부의 키 문자열도 `inputKey` 유틸로 통일
+리팩토링으로 컴포넌트 경계는 명확해졌지만, 긴 클래스 문자열은 그대로다.
 
-> ✅ 검증: 가로셈/세로셈 각각 정답·오답 표시가 기존과 동일.
+- [ ] `src/styles/tokens.ts`(또는 `index.css` `@theme`)로 반복 색상 하드코드 제거
+  - `#DDD9CB`, `#F0EDE3`, `#E2DBC8`, `#AEAD9E`, `#666`, `#1C2B3A` 등을 CSS 변수/테마 토큰으로
+- [ ] `VertCard` / `HoriCard`의 셀 스타일 유틸 클래스화
+  - `cell-border`, `cell-carry`, `cell-answer` 같은 유틸을 `@layer components`에 정의
+- [ ] `ControlHeader`의 버튼/드롭다운 클래스 조각(`CTRL_BTN_CLS`, `MENU_CLS`, `ITEM_CLS`)이 `ui/Dropdown.tsx`에 캡슐화되었는지 재확인, 중복 남았으면 제거
+- [ ] `clsx` 또는 `tailwind-merge` 도입 검토 (조건부 클래스가 3개 이상 엉킨 JSX만)
+- [ ] `print:` prefix 사용 일관성 점검 (숨김 처리가 필요한 UI에 누락 없는지)
 
-## Phase 3 — 훅 추출
+## 3. 접근성(a11y) 개선
 
-- [x] `src/hooks/useTimer.ts`
-  - input: `durationSeconds`
-  - output: `{ remaining, running, start, stop, alert }`
-  - 내부에 카운트다운 interval + `alert` 트리거 시 비프음 AudioContext 로직 포함
-- [x] `src/hooks/useLongPress.ts`
-  - `useLongPress(onTrigger, ms=600)` → 이벤트 핸들러 객체 반환 (mousedown/up/leave, touchstart/end/cancel)
-- [x] `src/hooks/useOutsideClick.ts`
-  - 특정 셀렉터(`[data-drop]`) 바깥 클릭 시 콜백 호출
-- [x] `src/hooks/usePrintAnswers.ts`
-  - `handlePrintAnswer`의 `showAnswer`/`afterprint`/`setTimeout` 타이밍을 캡슐화
-  - `App.tsx`에서는 `printAnswers(setShowAnswer)` 한 줄 호출
-- [x] 각 훅 적용 후 `ControlHeader.tsx`·`App.tsx`에서 기존 useState/useEffect/useRef 제거
+현재 드롭다운·햄버거·시크릿 버튼은 키보드·스크린리더 사용자에게 불친화적이다.
 
-> ✅ 검증: 타이머 시작/종료/종료 비프음, 타이틀 롱프레스, 드롭다운 바깥 클릭, 정답지 인쇄 흐름 모두 동일.
+- [ ] `ui/Dropdown.tsx`
+  - 트리거 버튼에 `aria-haspopup="menu"`, `aria-expanded`
+  - 메뉴 컨테이너에 `role="menu"`, 항목에 `role="menuitem"` 혹은 체크박스 타입일 땐 `role="menuitemcheckbox"` + `aria-checked`
+  - ESC 키로 닫기, ArrowUp/Down으로 항목 이동
+- [ ] `OpsDropdown` / `MobilePanel`의 연산 체크박스 리스트에 `aria-checked`, 키보드 토글
+- [ ] `TimerWidget`
+  - 남은 시간 표시에 `aria-live="polite"`, `aria-atomic="true"`
+  - 시작/정지 버튼에 현재 상태가 읽히는 `aria-label`
+- [ ] 모바일 햄버거 토글 버튼: `aria-label="메뉴"`, `aria-expanded`, `aria-controls`
+- [ ] 시크릿 버튼 묶음(`SecretActions`)에 적절한 landmark 또는 `aria-label`
+- [ ] `Worksheet` 입력: 각 칸에 `aria-label`(예: "1번 문제 일의 자리") 부여, 채점 결과 뱃지에 `aria-label="정답" | "오답"`
+- [ ] `eslint-plugin-jsx-a11y` 도입 후 경고 해소
 
-## Phase 4 — UI 프리미티브
+## 4. 기타 정비
 
-- [x] `src/components/ui/Dropdown.tsx`
-  - 현재 `ControlHeader.tsx`의 `MENU_CLS`, `ITEM_CLS`, `CTRL_BTN_CLS`를 흡수 (연산 드롭다운에선 import해 재사용)
-  - props: `label`, `open`, `onToggle`, `items: { key, label, active }[]`, `onSelect`, `wide?`
-  - 데스크탑·모바일 범위/페이지 드롭다운 + 타이머 드롭다운이 이걸 재사용 (총 5곳)
-- [x] 연산 드롭다운은 체크박스 기반이라 Phase 5에서 `OpsDropdown.tsx`로 분리 예정.
-
-## Phase 5 — ControlHeader 분할
-
-`src/components/ControlHeader/` 하위로 분할. 각 파일은 자체 props만 받고, 상위 `index.tsx`가 조립만 담당.
-
-- [x] `ModeToggle.tsx` — `mode`, `onModeChange`
-- [x] `RangeDropdown.tsx` — `range`, `onRangeChange`, `ops`, `onOpsChange`, `showPrefix?` (range 전환 시 ops 필터 로직 포함)
-- [x] `OpsDropdown.tsx` — `range`, `ops`, `onOpsChange` (데스크탑 체크박스 드롭다운)
-- [x] `PagesDropdown.tsx` — `pages`, `onPagesChange`
-- [x] `TimerWidget.tsx` — 타이머 UI (드롭다운 + 시작 + 카운트다운). `useTimer`는 `index.tsx`에서 호출해 props로 주입 (`stopTimer`는 시크릿 버튼과 공유)
-- [x] `SecretActions.tsx` — `onShowAnswer`, `onGrade`, `onPrintAnswer`, `onStopTimer`, `withPrint?` prop
-- [x] `MobilePanel.tsx` — 햄버거 토글된 상태에서의 렌더링. 내부에 모바일 ops 체크박스 리스트 포함
-- [x] `index.tsx` — `openDrop`·`mobileOpen`·`timerDuration`·`secretVisible` 상태 보유, `useTimer`/`useLongPress`/`useOutsideClick` 호출 후 하위 컴포넌트 배치
-
-> ✅ 검증: 데스크탑·모바일 양쪽에서 모든 컨트롤이 기존과 동일하게 동작. 햄버거 애니메이션, 타이머 진행 바, 시크릿 버튼 토글 확인.
-
-## Phase 6 — Worksheet 분할
-
-- [x] `src/components/Worksheet/GradeBadge.tsx`
-- [x] `src/components/Worksheet/VertCard.tsx`
-- [x] `src/components/Worksheet/HoriCard.tsx`
-- [x] `src/components/Worksheet/index.tsx` — 페이지/그리드 레이아웃만 담당
-- [x] 두 카드 공통 `borderClass` 로직과 `NO_FILL` props는 같은 폴더 내 `shared.ts`로 이동
-
-## Phase 7 — 마무리
-
-- [ ] `tree.txt` 갱신 (혹은 삭제 검토 — 실제 디렉터리 tree와 drift가 쉬움)
-- [ ] `README.md` "구조" 섹션 갱신
-- [ ] 미사용 import/변수 정리 (`npm run lint`)
-- [ ] 최종 빌드 + 실기기 인쇄 테스트
-
-## 범위 밖 (이번에는 건드리지 않음)
-
-- 테스트 프레임워크 도입 (Vitest 등) — 별도 작업
-- Tailwind 클래스 문자열 전반 정리 — 기능 리팩토링 후 별건으로
-- 접근성(aria-*) 개선 — 별건
-- 상태관리 라이브러리 도입 — 현재 규모에선 불필요
+- [ ] `plans/refactor/README.md`는 역사적 기록으로 남기되, 이 파일(`checklist.md`)과의 link만 유지
+- [ ] `tree.txt`를 계속 관리할지, 빌드 아티팩트 취급해 `.gitignore`로 돌릴지 결정
+- [ ] 상태관리 라이브러리(Zustand/Jotai 등): **도입하지 않음**. 현재 규모에서 React 기본 훅만으로 충분하며, prop drilling 이 발생한 지점이 생겼을 때만 재검토.

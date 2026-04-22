@@ -4,14 +4,15 @@ export function useTimer(durationSeconds: number) {
   const [remaining, setRemaining] = useState(durationSeconds)
   const [running, setRunning] = useState(false)
   const [alert, setAlert] = useState(false)
+  const [prevDuration, setPrevDuration] = useState(durationSeconds)
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
-  useEffect(() => {
-    if (intervalRef.current) clearInterval(intervalRef.current)
+  if (prevDuration !== durationSeconds) {
+    setPrevDuration(durationSeconds)
     setRunning(false)
     setRemaining(durationSeconds)
     setAlert(false)
-  }, [durationSeconds])
+  }
 
   useEffect(() => {
     if (running) {
@@ -48,7 +49,9 @@ export function useTimer(durationSeconds: number) {
           osc.stop(ctx.currentTime + t + beepDuration)
         })
       })
-    } catch {}
+    } catch {
+      // AudioContext 미지원 브라우저에서는 무음 동작
+    }
   }, [alert])
 
   const start = () => {

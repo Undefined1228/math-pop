@@ -13,7 +13,7 @@ export const NO_FILL: React.InputHTMLAttributes<HTMLInputElement> = {
   autoCorrect: 'off',
   autoCapitalize: 'none',
   spellCheck: false,
-  // @ts-ignore
+  // @ts-expect-error data-* 속성은 InputHTMLAttributes 타입에 정의돼 있지 않지만 DOM에는 전달된다
   'data-form-type': 'other',
   'data-lpignore': 'true',
 }

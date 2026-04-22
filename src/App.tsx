@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import ControlHeader from './components/ControlHeader'
 import Worksheet from './components/Worksheet'
 import type { Mode, Op, Range } from './domain/types'
@@ -13,14 +13,10 @@ export default function App() {
   const [ops, setOps] = useState<Op[]>(['add'])
   const [range, setRange] = useState<Range>('2d')
   const [pages, setPages] = useState(1)
-  const [problems, setProblems] = useState<Problem[][]>([])
+  const [problems, setProblems] = useState<Problem[][]>(() => generateProblems(1, ['add'], '2d'))
   const [inputs, setInputs] = useState<Record<string, string>>({})
   const [showAnswer, setShowAnswer] = useState(false)
   const [gradedResults, setGradedResults] = useState<Record<number, boolean>>({})
-
-  useEffect(() => {
-    setProblems(generateProblems(1, ['add'], '2d'))
-  }, [])
 
   const resetState = () => {
     setInputs({})
