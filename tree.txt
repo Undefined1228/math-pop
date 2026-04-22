@@ -1,20 +1,12 @@
-.
+/Users/ahnch/hwan_projects/math-pop
 ├── eslint.config.js
 ├── index.html
 ├── package-lock.json
 ├── package.json
 ├── plans
-│   ├── checklist
-│   │   └── dev-checklist.md
-│   ├── features
-│   │   ├── answer-grading.md
-│   │   ├── control-header.md
-│   │   ├── extensions.md
-│   │   ├── timer.md
-│   │   └── worksheet-layout.md
-│   ├── mockup
-│   │   └── layout.html
-│   └── plan.md
+│   └── refactor
+│       ├── checklist.md
+│       └── README.md
 ├── public
 │   ├── favicon.svg
 │   └── icons.svg
@@ -27,16 +19,41 @@
 │   │   ├── react.svg
 │   │   └── vite.svg
 │   ├── components
-│   │   ├── ControlHeader.tsx
-│   │   └── Worksheet.tsx
+│   │   ├── ControlHeader
+│   │   │   ├── index.tsx
+│   │   │   ├── MobilePanel.tsx
+│   │   │   ├── ModeToggle.tsx
+│   │   │   ├── OpsDropdown.tsx
+│   │   │   ├── PagesDropdown.tsx
+│   │   │   ├── RangeDropdown.tsx
+│   │   │   ├── SecretActions.tsx
+│   │   │   └── TimerWidget.tsx
+│   │   ├── ui
+│   │   │   └── Dropdown.tsx
+│   │   └── Worksheet
+│   │       ├── Circle.tsx
+│   │       ├── GradeBadge.tsx
+│   │       ├── HoriCard.tsx
+│   │       ├── index.tsx
+│   │       ├── shared.ts
+│   │       └── VertCard.tsx
+│   ├── domain
+│   │   ├── generate.ts
+│   │   ├── grade.ts
+│   │   ├── labels.ts
+│   │   ├── problem.ts
+│   │   └── types.ts
+│   ├── hooks
+│   │   ├── useLongPress.ts
+│   │   ├── useOutsideClick.ts
+│   │   ├── usePrintAnswers.ts
+│   │   └── useTimer.ts
 │   ├── index.css
-│   ├── main.tsx
-│   └── utils
-│       └── generateProblems.ts
+│   └── main.tsx
 ├── tree.txt
 ├── tsconfig.app.json
 ├── tsconfig.json
 ├── tsconfig.node.json
 └── vite.config.ts
 
-10 directories, 30 files
+12 directories, 45 files

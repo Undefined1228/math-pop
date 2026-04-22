@@ -1,24 +1,22 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import ControlHeader from './components/ControlHeader'
 import Worksheet from './components/Worksheet'
 import type { Mode, Op, Range } from './domain/types'
 import { OP_LABELS, RANGE_LABELS } from './domain/labels'
 import type { Problem } from './domain/problem'
 import { generateProblems } from './domain/generate'
+import { gradeAll } from './domain/grade'
+import { usePrintAnswers } from './hooks/usePrintAnswers'
 
 export default function App() {
   const [mode, setMode] = useState<Mode>('vert')
   const [ops, setOps] = useState<Op[]>(['add'])
   const [range, setRange] = useState<Range>('2d')
   const [pages, setPages] = useState(1)
-  const [problems, setProblems] = useState<Problem[][]>([])
+  const [problems, setProblems] = useState<Problem[][]>(() => generateProblems(1, ['add'], '2d'))
   const [inputs, setInputs] = useState<Record<string, string>>({})
   const [showAnswer, setShowAnswer] = useState(false)
   const [gradedResults, setGradedResults] = useState<Record<number, boolean>>({})
-
-  useEffect(() => {
-    setProblems(generateProblems(1, ['add'], '2d'))
-  }, [])
 
   const resetState = () => {
     setInputs({})
@@ -50,38 +48,14 @@ export default function App() {
 
   const handleShowAnswer = () => setShowAnswer(p => !p)
 
-  const handlePrintAnswer = () => {
-    if (showAnswer) {
-      window.print()
-      return
-    }
-    setShowAnswer(true)
-    const afterPrint = () => {
-      setShowAnswer(false)
-      window.removeEventListener('afterprint', afterPrint)
-    }
-    window.addEventListener('afterprint', afterPrint)
-    setTimeout(() => window.print(), 50)
-  }
+  const handlePrintAnswer = usePrintAnswers(showAnswer, setShowAnswer)
 
   const handleGrade = () => {
     if (Object.keys(gradedResults).length > 0) {
       setGradedResults({})
       return
     }
-    const results: Record<number, boolean> = {}
-    for (const page of problems.slice(0, pages)) {
-      for (const p of page) {
-        if (mode === 'vert') {
-          const digits = Array.from({ length: p.digits + 1 }, (_, i) => inputs[`${p.id}-${i}`] || '').join('')
-          const userAns = digits.trim() ? parseInt(digits, 10) : NaN
-          results[p.id] = userAns === p.answer
-        } else {
-          results[p.id] = parseInt(inputs[`${p.id}`] || '', 10) === p.answer
-        }
-      }
-    }
-    setGradedResults(results)
+    setGradedResults(gradeAll(problems.slice(0, pages), mode, inputs))
   }
 
   const visibleProblems = problems.slice(0, pages)

@@ -36,13 +36,16 @@ npm run build
 
 ```
 src/
+├── App.tsx                 # 최상위 상태 관리 및 조합
 ├── components/
-│   ├── ControlHeader.tsx   # 상단 컨트롤 바 (모드·범위·연산·타이머)
-│   └── Worksheet.tsx       # 문제 카드 렌더링 (세로셈·가로셈)
-├── utils/
-│   └── generateProblems.ts # 문제 생성 로직
-└── App.tsx                 # 상태 관리 및 채점
+│   ├── ControlHeader/      # 상단 컨트롤 바 (모드·범위·연산·페이지·타이머·시크릿)
+│   ├── Worksheet/          # 문제 카드 렌더링 (세로셈·가로셈)
+│   └── ui/                 # 공용 프리미티브 (Dropdown 등)
+├── domain/                 # 도메인 레이어 (타입·라벨·문제 생성·채점)
+└── hooks/                  # 공용 훅 (useTimer, useLongPress, useOutsideClick, usePrintAnswers)
 ```
+
+전체 트리는 [`tree.txt`](./tree.txt) 참조.
 
 ## 숨겨진 기능
 
