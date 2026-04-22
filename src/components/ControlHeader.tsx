@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState } from 'react'
 import type { Mode, Op, Range } from '../domain/types'
 import {
   OP_LABELS,
@@ -7,6 +7,9 @@ import {
   ALL_OPS,
   RANGE_OPS_SUPPORT,
 } from '../domain/labels'
+import { useTimer } from '../hooks/useTimer'
+import { useLongPress } from '../hooks/useLongPress'
+import { useOutsideClick } from '../hooks/useOutsideClick'
 
 const TIMER_OPTIONS = Array.from({ length: 8 }, (_, i) => (i + 3) * 60)
 const fmtOption = (s: number) => s < 60 ? `${s}초` : `${s / 60}분`
@@ -48,65 +51,13 @@ export default function ControlHeader({
   const [openDrop, setOpenDrop] = useState<string | null>(null)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [timerDuration, setTimerDuration] = useState(300)
-  const [remaining, setRemaining] = useState(300)
-  const [running, setRunning] = useState(false)
-  const [timerAlert, setTimerAlert] = useState(false)
   const [secretVisible, setSecretVisible] = useState(false)
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
-  const longPressRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  const handleTitleDown = () => {
-    longPressRef.current = setTimeout(() => setSecretVisible(v => !v), 600)
-  }
-  const handleTitleUp = () => {
-    if (longPressRef.current) { clearTimeout(longPressRef.current); longPressRef.current = null }
-  }
+  const { remaining, running, start: startTimer, stop: stopTimer, alert: timerAlert } = useTimer(timerDuration)
 
-  useEffect(() => {
-    if (running) {
-      intervalRef.current = setInterval(() => {
-        setRemaining(r => {
-          if (r <= 1) { setRunning(false); setTimerAlert(true); return 0 }
-          return r - 1
-        })
-      }, 1000)
-    }
-    return () => { if (intervalRef.current) clearInterval(intervalRef.current) }
-  }, [running])
+  const titleHandlers = useLongPress(() => setSecretVisible(v => !v))
 
-  useEffect(() => {
-    if (!timerAlert) return
-    try {
-      const ctx = new AudioContext()
-      const beepDuration = 0.22
-      const beepGap = 0.28
-      const setGap = 0.5
-      const setDuration = beepDuration + beepGap * 2
-      Array.from({ length: 3 }).forEach((_, set) => {
-        Array.from({ length: 3 }).forEach((_, beat) => {
-          const t = set * (setDuration + setGap) + beat * beepGap
-          const osc = ctx.createOscillator()
-          const gain = ctx.createGain()
-          osc.connect(gain)
-          gain.connect(ctx.destination)
-          osc.frequency.value = 880
-          osc.type = 'sine'
-          gain.gain.setValueAtTime(0.4, ctx.currentTime + t)
-          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + t + beepDuration)
-          osc.start(ctx.currentTime + t)
-          osc.stop(ctx.currentTime + t + beepDuration)
-        })
-      })
-    } catch {}
-  }, [timerAlert])
-
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (!(e.target as Element).closest('[data-drop]')) setOpenDrop(null)
-    }
-    document.addEventListener('mousedown', handler)
-    return () => document.removeEventListener('mousedown', handler)
-  }, [])
+  useOutsideClick('[data-drop]', () => setOpenDrop(null))
 
   const toggleDrop = (id: string) => setOpenDrop(p => p === id ? null : id)
 
@@ -137,23 +88,8 @@ export default function ControlHeader({
     onRangeChange(r)
   }
 
-  const startTimer = () => {
-    if (intervalRef.current) clearInterval(intervalRef.current)
-    setTimerAlert(false)
-    setRemaining(timerDuration)
-    setRunning(true)
-  }
-
-  const stopTimer = () => {
-    setRunning(false)
-    if (intervalRef.current) clearInterval(intervalRef.current)
-  }
-
   const selectTimerDuration = (s: number) => {
-    stopTimer()
     setTimerDuration(s)
-    setRemaining(s)
-    setTimerAlert(false)
     setOpenDrop(null)
   }
 
@@ -253,12 +189,7 @@ export default function ControlHeader({
 
         <div
           className="font-heading text-[17px] font-bold text-white tracking-[-0.3px] whitespace-nowrap mr-1 shrink-0 select-none cursor-default"
-          onMouseDown={handleTitleDown}
-          onMouseUp={handleTitleUp}
-          onMouseLeave={handleTitleUp}
-          onTouchStart={handleTitleDown}
-          onTouchEnd={handleTitleUp}
-          onTouchCancel={handleTitleUp}
+          {...titleHandlers}
         >
           MathPop
         </div>

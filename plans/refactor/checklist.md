@@ -32,18 +32,18 @@
 
 ## Phase 3 — 훅 추출
 
-- [ ] `src/hooks/useTimer.ts`
+- [x] `src/hooks/useTimer.ts`
   - input: `durationSeconds`
   - output: `{ remaining, running, start, stop, alert }`
   - 내부에 카운트다운 interval + `alert` 트리거 시 비프음 AudioContext 로직 포함
-- [ ] `src/hooks/useLongPress.ts`
+- [x] `src/hooks/useLongPress.ts`
   - `useLongPress(onTrigger, ms=600)` → 이벤트 핸들러 객체 반환 (mousedown/up/leave, touchstart/end/cancel)
-- [ ] `src/hooks/useOutsideClick.ts`
+- [x] `src/hooks/useOutsideClick.ts`
   - 특정 셀렉터(`[data-drop]`) 바깥 클릭 시 콜백 호출
-- [ ] `src/hooks/usePrintAnswers.ts`
+- [x] `src/hooks/usePrintAnswers.ts`
   - `handlePrintAnswer`의 `showAnswer`/`afterprint`/`setTimeout` 타이밍을 캡슐화
   - `App.tsx`에서는 `printAnswers(setShowAnswer)` 한 줄 호출
-- [ ] 각 훅 적용 후 `ControlHeader.tsx`·`App.tsx`에서 기존 useState/useEffect/useRef 제거
+- [x] 각 훅 적용 후 `ControlHeader.tsx`·`App.tsx`에서 기존 useState/useEffect/useRef 제거
 
 > ✅ 검증: 타이머 시작/종료/종료 비프음, 타이틀 롱프레스, 드롭다운 바깥 클릭, 정답지 인쇄 흐름 모두 동일.
 

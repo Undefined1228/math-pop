@@ -6,6 +6,7 @@ import { OP_LABELS, RANGE_LABELS } from './domain/labels'
 import type { Problem } from './domain/problem'
 import { generateProblems } from './domain/generate'
 import { gradeAll } from './domain/grade'
+import { usePrintAnswers } from './hooks/usePrintAnswers'
 
 export default function App() {
   const [mode, setMode] = useState<Mode>('vert')
@@ -51,19 +52,7 @@ export default function App() {
 
   const handleShowAnswer = () => setShowAnswer(p => !p)
 
-  const handlePrintAnswer = () => {
-    if (showAnswer) {
-      window.print()
-      return
-    }
-    setShowAnswer(true)
-    const afterPrint = () => {
-      setShowAnswer(false)
-      window.removeEventListener('afterprint', afterPrint)
-    }
-    window.addEventListener('afterprint', afterPrint)
-    setTimeout(() => window.print(), 50)
-  }
+  const handlePrintAnswer = usePrintAnswers(showAnswer, setShowAnswer)
 
   const handleGrade = () => {
     if (Object.keys(gradedResults).length > 0) {
