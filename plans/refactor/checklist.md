@@ -72,11 +72,11 @@
 
 ## Phase 6 — Worksheet 분할
 
-- [ ] `src/components/Worksheet/GradeBadge.tsx`
-- [ ] `src/components/Worksheet/VertCard.tsx`
-- [ ] `src/components/Worksheet/HoriCard.tsx`
-- [ ] `src/components/Worksheet/index.tsx` — 페이지/그리드 레이아웃만 담당
-- [ ] 두 카드 공통 `borderClass` 로직과 `NO_FILL` props는 같은 폴더 내 `shared.ts`로 이동
+- [x] `src/components/Worksheet/GradeBadge.tsx`
+- [x] `src/components/Worksheet/VertCard.tsx`
+- [x] `src/components/Worksheet/HoriCard.tsx`
+- [x] `src/components/Worksheet/index.tsx` — 페이지/그리드 레이아웃만 담당
+- [x] 두 카드 공통 `borderClass` 로직과 `NO_FILL` props는 같은 폴더 내 `shared.ts`로 이동
 
 ## Phase 7 — 마무리
 
