@@ -1,6 +1,6 @@
 import Dropdown from '../ui/Dropdown'
 
-const TIMER_OPTIONS = [30, ...Array.from({ length: 8 }, (_, i) => (i + 3) * 60)]
+const TIMER_OPTIONS = Array.from({ length: 8 }, (_, i) => (i + 3) * 60)
 const fmtOption = (s: number) => s < 60 ? `${s}초` : `${s / 60}분`
 const fmt = (s: number) =>
   `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`
