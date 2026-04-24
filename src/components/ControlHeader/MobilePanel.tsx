@@ -1,10 +1,17 @@
 import { useEffect, useState } from 'react'
+import type { AppMode, Stage } from '../../domain/types'
+import StageDropdown from './StageDropdown'
 import PagesDropdown from './PagesDropdown'
 import TimerWidget from './TimerWidget'
 import SecretActions from './SecretActions'
 
 interface Props {
   open: boolean
+  appMode: AppMode
+  stage: Stage
+  onStageChange: (s: Stage) => void
+  onTestStart: () => void
+  testRunning: boolean
   pages: number
   onPagesChange: (p: number) => void
 
@@ -14,6 +21,7 @@ interface Props {
   timerRunning: boolean
   timerAlert: boolean
   onTimerStart: () => void
+  recommendedTimerSec: number
 
   openDrop: string | null
   onToggleDrop: (id: string) => void
@@ -27,9 +35,11 @@ interface Props {
 }
 
 export default function MobilePanel({
-  open, pages, onPagesChange,
+  open, appMode,
+  stage, onStageChange, onTestStart, testRunning,
+  pages, onPagesChange,
   timerDuration, onTimerDurationChange,
-  timerRemaining, timerRunning, timerAlert, onTimerStart,
+  timerRemaining, timerRunning, timerAlert, onTimerStart, recommendedTimerSec,
   openDrop, onToggleDrop, onCloseDrop,
   secretVisible, onShowAnswer, onGrade, onPrintAnswer, onStopTimer,
 }: Props) {
@@ -48,33 +58,70 @@ export default function MobilePanel({
     >
       <div className="bg-navy border-t border-white/10 px-5 pt-4 pb-5 sm:border-0 sm:rounded-[8px] sm:shadow-[0_10px_28px_rgba(0,0,0,0.35)]">
 
-        <Section label="페이지 수">
-          <PagesDropdown
-            pages={pages}
-            onPagesChange={onPagesChange}
-            open={openDrop === 'm-pages'}
-            onToggle={() => onToggleDrop('m-pages')}
+        <Section label="단계">
+          <StageDropdown
+            stage={stage}
+            onStageChange={onStageChange}
+            open={openDrop === 'm-stage'}
+            onToggle={() => onToggleDrop('m-stage')}
             onClose={onCloseDrop}
           />
         </Section>
+
+        {appMode === 'test' && (
+          <>
+            <Divider />
+            <button
+              className="w-full h-[42px] rounded-[8px] border-0 bg-accent text-white text-[14px] font-bold cursor-pointer font-sans transition-[background,opacity] duration-[130ms] hover:bg-accent-h disabled:opacity-40 disabled:cursor-not-allowed"
+              onClick={onTestStart}
+              disabled={testRunning}
+            >
+              테스트 시작
+            </button>
+          </>
+        )}
+
+        {appMode === 'print' && (
+          <>
+            <Divider />
+            <Section label="페이지 수">
+              <PagesDropdown
+                pages={pages}
+                onPagesChange={onPagesChange}
+                open={openDrop === 'm-pages'}
+                onToggle={() => onToggleDrop('m-pages')}
+                onClose={onCloseDrop}
+              />
+            </Section>
+
+            <Divider />
+
+            <Section label={`타이머 · 권장 ${Math.round(recommendedTimerSec / 60)}분`}>
+              <TimerWidget
+                duration={timerDuration}
+                onDurationChange={onTimerDurationChange}
+                remaining={timerRemaining}
+                running={timerRunning}
+                alert={timerAlert}
+                onStart={onTimerStart}
+                open={openDrop === 'timer'}
+                onToggle={() => onToggleDrop('timer')}
+                onClose={onCloseDrop}
+              />
+            </Section>
+          </>
+        )}
 
         <Divider />
 
-        <Section label="타이머">
-          <TimerWidget
-            duration={timerDuration}
-            onDurationChange={onTimerDurationChange}
-            remaining={timerRemaining}
-            running={timerRunning}
-            alert={timerAlert}
-            onStart={onTimerStart}
-            open={openDrop === 'timer'}
-            onToggle={() => onToggleDrop('timer')}
-            onClose={onCloseDrop}
-          />
-        </Section>
+        <button
+          className="w-full h-[38px] rounded-[6px] border border-white/25 bg-transparent text-white text-[13px] cursor-pointer font-sans transition-[background] duration-[130ms] hover:bg-white/10 flex items-center justify-center gap-[6px]"
+          onClick={() => window.print()}
+        >
+          🖨 인쇄
+        </button>
 
-        {secretVisible && (
+        {appMode === 'print' && secretVisible && (
           <>
             <Divider />
             <div className="flex items-center gap-2 flex-wrap">
@@ -83,7 +130,6 @@ export default function MobilePanel({
                 onGrade={onGrade}
                 onPrintAnswer={onPrintAnswer}
                 onStopTimer={onStopTimer}
-                withPrint
               />
             </div>
           </>

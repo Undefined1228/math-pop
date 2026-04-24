@@ -48,13 +48,13 @@
 
 ## Phase 5 — ControlHeader / MobilePanel 개편
 
-- [ ] "새로 생성" 버튼 → `AppModeToggle`로 교체
-- [ ] `StageDropdown` 추가 (양쪽 모드 공통)
-- [ ] `PagesDropdown` — 인쇄 모드에서만 노출
-- [ ] `TimerWidget` — 인쇄 모드에서만 노출. 권장 시간(`stage.durationSec × 실제 문항 수 / stage.count`) 기본값 세팅, "권장: N분" 표시
-- [ ] 채점 인디케이터 — 인쇄 모드에서만 노출
-- [ ] 테스트 모드 전용 "테스트 시작" 버튼 추가
-- [ ] 인쇄 버튼 — 양쪽 모드 공통 노출 (테스트 모드도 문제지·답안 인쇄 가능)
+- [x] "새로 생성" 버튼 → `AppModeToggle`로 교체
+- [x] `StageDropdown` 추가 (양쪽 모드 공통)
+- [x] `PagesDropdown` — 인쇄 모드에서만 노출
+- [x] `TimerWidget` — 인쇄 모드에서만 노출. 권장 시간(`stage.durationSec × 실제 문항 수 / stage.count`) 기본값 세팅, "권장: N분" 표시
+- [x] 채점 인디케이터 — 인쇄 모드에서만 노출
+- [x] 테스트 모드 전용 "테스트 시작" 버튼 추가
+- [x] 인쇄 버튼 — 양쪽 모드 공통 노출 (테스트 모드도 문제지·답안 인쇄 가능)
 
 ---
 

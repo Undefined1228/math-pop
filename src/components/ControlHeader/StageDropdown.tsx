@@ -10,12 +10,13 @@ interface Props {
   open: boolean
   onToggle: () => void
   onClose: () => void
+  label?: string
 }
 
-export default function StageDropdown({ stage, onStageChange, open, onToggle, onClose }: Props) {
+export default function StageDropdown({ stage, onStageChange, open, onToggle, onClose, label }: Props) {
   return (
     <Dropdown
-      label={STAGE_PRESETS[stage].label}
+      label={label ?? STAGE_PRESETS[stage].label}
       open={open}
       onToggle={onToggle}
       items={STAGES.map(s => ({ key: s, label: STAGE_PRESETS[s].label, active: stage === s }))}

@@ -1,14 +1,22 @@
 import { useState } from 'react'
 import { useLongPress } from '../../hooks/useLongPress'
 import { useOutsideClick } from '../../hooks/useOutsideClick'
+import type { AppMode, Stage } from '../../domain/types'
+import AppModeToggle from './AppModeToggle'
+import StageDropdown from './StageDropdown'
 import SecretActions from './SecretActions'
 import MobilePanel from './MobilePanel'
 import TimerAlertOverlay from './TimerAlertOverlay'
 
 interface Props {
+  appMode: AppMode
+  onAppModeChange: (m: AppMode) => void
+  stage: Stage
+  onStageChange: (s: Stage) => void
+  onTestStart: () => void
+  testRunning: boolean
   pages: number
   onPagesChange: (p: number) => void
-  onGenerate: () => void
   onShowAnswer: () => void
   onGrade: () => void
   onPrintAnswer: () => void
@@ -19,13 +27,18 @@ interface Props {
   timerAlert: boolean
   onTimerStart: () => void
   onTimerStop: () => void
+  recommendedTimerSec: number
 }
 
 export default function ControlHeader({
+  appMode, onAppModeChange,
+  stage, onStageChange,
+  onTestStart, testRunning,
   pages, onPagesChange,
-  onGenerate, onShowAnswer, onGrade, onPrintAnswer,
+  onShowAnswer, onGrade, onPrintAnswer,
   timerDuration, onTimerDurationChange,
   timerRemaining, timerRunning, timerAlert, onTimerStart, onTimerStop,
+  recommendedTimerSec,
 }: Props) {
   const [openDrop, setOpenDrop] = useState<string | null>(null)
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -49,13 +62,30 @@ export default function ControlHeader({
           MathPop
         </div>
 
+        <div className="max-sm:hidden shrink-0" data-drop>
+          <StageDropdown
+            stage={stage}
+            onStageChange={onStageChange}
+            open={openDrop === 'd-stage'}
+            onToggle={() => toggleDrop('d-stage')}
+            onClose={closeDrop}
+            label={`${stage}단계`}
+          />
+        </div>
+
         <div className="ml-auto flex items-center gap-2 shrink-0">
-          <button
-            className="h-[34px] px-4 rounded-[6px] border-0 bg-accent text-white text-[13px] font-bold cursor-pointer font-sans transition-[background] duration-[130ms] hover:bg-accent-h"
-            onClick={onGenerate}
-          >
-            새로 생성
-          </button>
+          <AppModeToggle appMode={appMode} onAppModeChange={onAppModeChange} />
+
+          {appMode === 'test' && (
+            <button
+              className="h-[34px] px-4 rounded-[6px] border-0 bg-accent text-white text-[13px] font-bold cursor-pointer font-sans transition-[background,opacity] duration-[130ms] hover:bg-accent-h disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap"
+              onClick={onTestStart}
+              disabled={testRunning}
+            >
+              테스트 시작
+            </button>
+          )}
+
           <button
             className="h-[34px] px-[14px] rounded-[6px] border border-white/25 bg-transparent text-white text-[13px] cursor-pointer flex items-center gap-[6px] font-sans transition-[background] duration-[130ms] hover:bg-white/10 max-sm:hidden"
             onClick={() => window.print()}
@@ -63,7 +93,7 @@ export default function ControlHeader({
             🖨 인쇄
           </button>
 
-          {secretVisible && (
+          {appMode === 'print' && secretVisible && (
             <div className="max-sm:hidden">
               <SecretActions
                 onShowAnswer={onShowAnswer}
@@ -100,6 +130,11 @@ export default function ControlHeader({
 
       <MobilePanel
         open={mobileOpen}
+        appMode={appMode}
+        stage={stage}
+        onStageChange={onStageChange}
+        onTestStart={onTestStart}
+        testRunning={testRunning}
         pages={pages}
         onPagesChange={onPagesChange}
         timerDuration={timerDuration}
@@ -108,6 +143,7 @@ export default function ControlHeader({
         timerRunning={timerRunning}
         timerAlert={timerAlert}
         onTimerStart={onTimerStart}
+        recommendedTimerSec={recommendedTimerSec}
         openDrop={openDrop}
         onToggleDrop={toggleDrop}
         onCloseDrop={closeDrop}

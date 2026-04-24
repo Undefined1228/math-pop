@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import ControlHeader from './components/ControlHeader'
 import Worksheet from './components/Worksheet'
+import TestResultModal from './components/TestResultModal'
 import type { AppMode, Stage, TestResult } from './domain/types'
 import { OP_LABELS, RANGE_LABELS } from './domain/labels'
 import type { Problem } from './domain/problem'
@@ -23,7 +24,9 @@ export default function App() {
   const range = preset.range
 
   const [pages, setPages] = useState(1)
-  const [timerDuration, setTimerDuration] = useState(300)
+  const [timerDuration, setTimerDuration] = useState(
+    Math.round(preset.durationSec * PROBLEMS_PER_PAGE / preset.count)
+  )
   const [problems, setProblems] = useState<Problem[][]>(() =>
     generateProblems(1, preset.ops, preset.range, { noCarry: preset.noCarry })
   )
@@ -32,6 +35,8 @@ export default function App() {
   const [gradedResults, setGradedResults] = useState<Record<number, boolean>>({})
 
   const { remaining, running: timerRunning, start: startTimer, stop: stopTimer, alert: timerAlert } = useTimer(timerDuration)
+
+  const recommendedTimerSec = Math.round(preset.durationSec * pages * PROBLEMS_PER_PAGE / preset.count)
 
   const resetState = () => {
     setInputs({})
@@ -61,16 +66,22 @@ export default function App() {
     setTestRunning(false)
   }, [timerAlert])
 
-  const generate = () => {
-    setProblems(generateProblems(pages, ops, range))
-    resetState()
+  const handleAppModeChange = (m: AppMode) => {
+    setAppMode(m)
+    if (m === 'print') {
+      setTestRunning(false)
+      stopTimer()
+    }
   }
 
   const handleStageChange = (s: Stage) => {
+    const p = STAGE_PRESETS[s]
     setStage(s)
+    setProblems(generateProblems(pages, p.ops, p.range, { noCarry: p.noCarry }))
     resetState()
     setTestRunning(false)
     setTestResult(null)
+    setTimerDuration(Math.round(p.durationSec * pages * PROBLEMS_PER_PAGE / p.count))
   }
 
   const handleTestStart = () => {
@@ -105,9 +116,10 @@ export default function App() {
   const handlePagesChange = (p: number) => {
     setPages(p)
     if (p > problems.length) {
-      setProblems(generateProblems(p, ops, range))
+      setProblems(generateProblems(p, ops, range, { noCarry: preset.noCarry }))
       resetState()
     }
+    setTimerDuration(Math.round(preset.durationSec * p * PROBLEMS_PER_PAGE / preset.count))
   }
 
   const handleInputChange = (key: string, val: string) => {
@@ -133,9 +145,14 @@ export default function App() {
   return (
     <>
       <ControlHeader
+        appMode={appMode}
+        onAppModeChange={handleAppModeChange}
+        stage={stage}
+        onStageChange={handleStageChange}
+        onTestStart={handleTestStart}
+        testRunning={testRunning}
         pages={pages}
         onPagesChange={handlePagesChange}
-        onGenerate={generate}
         onShowAnswer={handleShowAnswer}
         onGrade={handleGrade}
         onPrintAnswer={handlePrintAnswer}
@@ -146,8 +163,9 @@ export default function App() {
         timerAlert={timerAlert}
         onTimerStart={() => startTimer()}
         onTimerStop={stopTimer}
+        recommendedTimerSec={recommendedTimerSec}
       />
-      {gradedCount > 0 && (
+      {appMode === 'print' && gradedCount > 0 && (
         <div className="max-w-[880px] mx-auto px-5 pt-5 print:hidden">
           <div className="bg-paper border border-stroke rounded-[6px] px-4 py-2.5 text-[13.5px] font-sans inline-block">
             <span className="font-bold text-text-base">
@@ -169,6 +187,15 @@ export default function App() {
           inputs={inputs}
           onInputChange={handleInputChange}
           printLabel={printLabel}
+        />
+      )}
+      {testResult && (
+        <TestResultModal
+          result={testResult}
+          onRetry={handleTestStart}
+          onRetryWrong={handleRetryWrong}
+          onChangeStage={() => setTestResult(null)}
+          onSwitchToPrint={() => { handleAppModeChange('print'); setTestResult(null) }}
         />
       )}
     </>
