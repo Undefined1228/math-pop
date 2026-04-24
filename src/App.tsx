@@ -84,6 +84,10 @@ export default function App() {
           <div className="bg-paper border border-stroke rounded-[6px] px-4 py-2.5 text-[13.5px] font-sans inline-block">
             <span className="font-bold text-text-base">
               {gradedCount}문제 중 <span className="text-accent">{correctCount}개</span> 정답
+              {' '}
+              <span className="text-muted font-normal">
+                (정답률: {Math.round((correctCount / gradedCount) * 100)}%, 점수환산: {Math.round((correctCount / gradedCount) * 100)}점/100점)
+              </span>
             </span>
           </div>
         </div>

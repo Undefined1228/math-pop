@@ -7,7 +7,7 @@ interface Props {
 
 export default function ModeToggle({ mode, onModeChange }: Props) {
   return (
-    <div className="flex bg-white/[0.08] border border-white/[0.18] rounded-[6px] overflow-hidden shrink-0">
+    <div className="inline-flex w-fit bg-white/[0.08] border border-white/[0.18] rounded-[6px] overflow-hidden shrink-0">
       {(['vert', 'hori'] as Mode[]).map((m, i) => (
         <button
           key={m}

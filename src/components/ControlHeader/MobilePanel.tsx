@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import type { Mode, Op, Range } from '../../domain/types'
 import { OP_LABELS, ALL_OPS, RANGE_LABELS, RANGE_OPS_SUPPORT } from '../../domain/labels'
 import ModeToggle from './ModeToggle'
@@ -53,8 +54,18 @@ export default function MobilePanel({
     onOpsChange(ops.includes(op) ? ops.filter(o => o !== op) : [...ops, op])
   }
 
+  const [clip, setClip] = useState(true)
+  useEffect(() => {
+    if (!open) setClip(true)
+  }, [open])
+
   return (
-    <div className={`sm:hidden overflow-hidden transition-[max-height] duration-200 ease-in-out ${open ? 'max-h-[640px]' : 'max-h-0'}`}>
+    <div
+      className={`transition-[max-height] duration-200 ease-in-out ${open ? 'max-h-[640px]' : 'max-h-0'} ${clip ? 'overflow-hidden' : 'overflow-visible'}`}
+      onTransitionEnd={(e) => {
+        if (e.propertyName === 'max-height' && open) setClip(false)
+      }}
+    >
       <div className="bg-navy border-t border-white/10 px-5 pt-4 pb-5">
 
         <Section label="셈 방식">

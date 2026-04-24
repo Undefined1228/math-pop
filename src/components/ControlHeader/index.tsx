@@ -3,11 +3,6 @@ import type { Mode, Op, Range } from '../../domain/types'
 import { useTimer } from '../../hooks/useTimer'
 import { useLongPress } from '../../hooks/useLongPress'
 import { useOutsideClick } from '../../hooks/useOutsideClick'
-import ModeToggle from './ModeToggle'
-import RangeDropdown from './RangeDropdown'
-import OpsDropdown from './OpsDropdown'
-import PagesDropdown from './PagesDropdown'
-import TimerWidget from './TimerWidget'
 import SecretActions from './SecretActions'
 import MobilePanel from './MobilePanel'
 
@@ -25,10 +20,6 @@ interface Props {
   onGrade: () => void
   onPrintAnswer: () => void
 }
-
-const VR = () => (
-  <div className="w-px h-[26px] bg-white/[0.18] shrink-0" />
-)
 
 export default function ControlHeader({
   mode, ops, range, pages,
@@ -56,52 +47,6 @@ export default function ControlHeader({
           {...titleHandlers}
         >
           MathPop
-        </div>
-
-        <VR />
-
-        {/* 데스크탑 컨트롤 */}
-        <div className="flex items-center gap-3 flex-1 max-sm:hidden">
-          <ModeToggle mode={mode} onModeChange={onModeChange} />
-          <VR />
-          <RangeDropdown
-            range={range}
-            ops={ops}
-            onRangeChange={onRangeChange}
-            onOpsChange={onOpsChange}
-            open={openDrop === 'range'}
-            onToggle={() => toggleDrop('range')}
-            onClose={closeDrop}
-            showPrefix
-          />
-          <VR />
-          <OpsDropdown
-            range={range}
-            ops={ops}
-            onOpsChange={onOpsChange}
-            open={openDrop === 'ops'}
-            onToggle={() => toggleDrop('ops')}
-          />
-          <VR />
-          <PagesDropdown
-            pages={pages}
-            onPagesChange={onPagesChange}
-            open={openDrop === 'pages'}
-            onToggle={() => toggleDrop('pages')}
-            onClose={closeDrop}
-          />
-          <VR />
-          <TimerWidget
-            duration={timerDuration}
-            onDurationChange={setTimerDuration}
-            remaining={remaining}
-            running={running}
-            alert={timerAlert}
-            onStart={startTimer}
-            open={openDrop === 'timer'}
-            onToggle={() => toggleDrop('timer')}
-            onClose={closeDrop}
-          />
         </div>
 
         {/* 우측 액션 */}
@@ -132,7 +77,7 @@ export default function ControlHeader({
 
           {/* 햄버거 버튼 */}
           <button
-            className="sm:hidden w-[36px] h-[36px] rounded-[6px] border border-white/20 bg-white/[0.08] cursor-pointer flex flex-col items-center justify-center gap-[5px] transition-[background] duration-[130ms] hover:bg-white/[0.16] shrink-0"
+            className="w-[36px] h-[36px] rounded-[6px] border border-white/20 bg-white/[0.08] cursor-pointer flex flex-col items-center justify-center gap-[5px] transition-[background] duration-[130ms] hover:bg-white/[0.16] shrink-0"
             onClick={() => setMobileOpen(p => !p)}
           >
             <span className={`block w-4 h-[1.5px] bg-white rounded-[2px] transition-all duration-200 ${mobileOpen ? 'translate-y-[6.5px] rotate-45' : ''}`} />
