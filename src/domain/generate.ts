@@ -26,7 +26,12 @@ function rndMix() {
 
 type Pair = [a: number, b: number, answer: number]
 
-function genAdd(range: Range): Pair {
+function genAdd(range: Range, noCarry?: boolean): Pair {
+  if (noCarry && range === '1d') {
+    const a = rnd(1, 8)
+    const b = rnd(1, 9 - a)
+    return [a, b, a + b]
+  }
   const [min, max] = RANGE_BOUNDS[range]
   const a = range === 'mix' ? rndMix() : rnd(min, max)
   const b = range === 'mix' ? rndMix() : rnd(min, max)
@@ -62,9 +67,9 @@ function genDiv(range: Range): Pair {
   return [b * q, b, q]
 }
 
-function gen2Term(id: number, op: Op, range: Range): Problem {
+function gen2Term(id: number, op: Op, range: Range, noCarry?: boolean): Problem {
   const [a, b, answer] =
-    op === 'add' ? genAdd(range) :
+    op === 'add' ? genAdd(range, noCarry) :
     op === 'sub' ? genSub(range) :
     op === 'mul' ? genMul(range) :
     genDiv(range)
@@ -112,16 +117,30 @@ function gen3Term(id: number): Problem {
   }
 }
 
-function makeProblem(id: number, ops: Op[], range: Range): Problem {
+function makeProblem(id: number, ops: Op[], range: Range, noCarry?: boolean): Problem {
   if (range === 'triple') return gen3Term(id)
   const op = ops[Math.floor(Math.random() * ops.length)]
-  return gen2Term(id, op, range)
+  return gen2Term(id, op, range, noCarry)
 }
 
-export function generateProblems(pages: number, ops: Op[], range: Range): Problem[][] {
+export function generateProblems(
+  pages: number,
+  ops: Op[],
+  range: Range,
+  options?: { count?: number; noCarry?: boolean },
+): Problem[][] {
+  const { count, noCarry } = options ?? {}
+  if (count !== undefined) {
+    const pageCount = Math.ceil(count / PROBLEMS_PER_PAGE)
+    let id = 1
+    return Array.from({ length: pageCount }, (_, p) => {
+      const perPage = Math.min(count - p * PROBLEMS_PER_PAGE, PROBLEMS_PER_PAGE)
+      return Array.from({ length: perPage }, () => makeProblem(id++, ops, range, noCarry))
+    })
+  }
   return Array.from({ length: pages }, (_, p) =>
     Array.from({ length: PROBLEMS_PER_PAGE }, (_, i) =>
-      makeProblem(p * PROBLEMS_PER_PAGE + i + 1, ops, range)
+      makeProblem(p * PROBLEMS_PER_PAGE + i + 1, ops, range, noCarry)
     )
   )
 }
