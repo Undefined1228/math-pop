@@ -5,6 +5,7 @@ import { useLongPress } from '../../hooks/useLongPress'
 import { useOutsideClick } from '../../hooks/useOutsideClick'
 import SecretActions from './SecretActions'
 import MobilePanel from './MobilePanel'
+import TimerAlertOverlay from './TimerAlertOverlay'
 
 interface Props {
   mode: Mode
@@ -34,6 +35,7 @@ export default function ControlHeader({
   const { remaining, running, start: startTimer, stop: stopTimer, alert: timerAlert } = useTimer(timerDuration)
   const titleHandlers = useLongPress(() => setSecretVisible(v => !v))
   useOutsideClick('[data-drop]', () => setOpenDrop(null))
+  useOutsideClick('[data-panel], [data-hamburger]', () => setMobileOpen(false))
 
   const toggleDrop = (id: string) => setOpenDrop(p => p === id ? null : id)
   const closeDrop = () => setOpenDrop(null)
@@ -77,6 +79,7 @@ export default function ControlHeader({
 
           {/* 햄버거 버튼 */}
           <button
+            data-hamburger
             className="w-[36px] h-[36px] rounded-[6px] border border-white/20 bg-white/[0.08] cursor-pointer flex flex-col items-center justify-center gap-[5px] transition-[background] duration-[130ms] hover:bg-white/[0.16] shrink-0"
             onClick={() => setMobileOpen(p => !p)}
           >
@@ -125,6 +128,8 @@ export default function ControlHeader({
         onPrintAnswer={onPrintAnswer}
         onStopTimer={stopTimer}
       />
+
+      <TimerAlertOverlay remaining={remaining} duration={timerDuration} running={running} />
     </header>
   )
 }

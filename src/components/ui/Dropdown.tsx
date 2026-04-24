@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 
 export const MENU_CLS =
-  'absolute top-[calc(100%+7px)] left-0 bg-white border border-stroke rounded-[8px] py-[6px] min-w-[136px] shadow-[0_10px_28px_rgba(0,0,0,0.18)] z-[300]'
+  'absolute top-[calc(100%+7px)] left-0 bg-white border border-stroke rounded-[8px] py-[6px] min-w-[136px] max-h-[60vh] overflow-y-auto overscroll-contain shadow-[0_10px_28px_rgba(0,0,0,0.18)] z-[300]'
 
 export const ITEM_CLS =
   'flex items-center gap-[9px] px-[14px] py-2 text-[13.5px] text-text-base cursor-pointer hover:bg-cream'

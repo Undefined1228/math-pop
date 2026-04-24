@@ -61,12 +61,13 @@ export default function MobilePanel({
 
   return (
     <div
-      className={`transition-[max-height] duration-200 ease-in-out ${open ? 'max-h-[640px]' : 'max-h-0'} ${clip ? 'overflow-hidden' : 'overflow-visible'}`}
+      data-panel
+      className={`transition-[max-height] duration-200 ease-in-out ${open ? 'max-h-[640px]' : 'max-h-0'} ${clip ? 'overflow-hidden' : 'overflow-visible'} sm:absolute sm:right-5 sm:top-full sm:w-[360px] sm:max-h-none sm:overflow-visible sm:transition-[opacity,transform] sm:duration-150 sm:origin-top-right ${open ? 'sm:opacity-100 sm:scale-100 sm:pointer-events-auto' : 'sm:opacity-0 sm:scale-95 sm:pointer-events-none'}`}
       onTransitionEnd={(e) => {
         if (e.propertyName === 'max-height' && open) setClip(false)
       }}
     >
-      <div className="bg-navy border-t border-white/10 px-5 pt-4 pb-5">
+      <div className="bg-navy border-t border-white/10 px-5 pt-4 pb-5 sm:border-0 sm:rounded-[8px] sm:shadow-[0_10px_28px_rgba(0,0,0,0.35)]">
 
         <Section label="셈 방식">
           <ModeToggle mode={mode} onModeChange={onModeChange} />
