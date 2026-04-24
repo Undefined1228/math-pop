@@ -58,19 +58,22 @@ export default function MobilePanel({
     >
       <div className="bg-navy border-t border-white/10 px-5 pt-4 pb-5 sm:border-0 sm:rounded-[8px] sm:shadow-[0_10px_28px_rgba(0,0,0,0.35)]">
 
-        <Section label="단계">
-          <StageDropdown
-            stage={stage}
-            onStageChange={onStageChange}
-            open={openDrop === 'm-stage'}
-            onToggle={() => onToggleDrop('m-stage')}
-            onClose={onCloseDrop}
-          />
-        </Section>
+        <div className="sm:hidden">
+          <Section label="단계">
+            <StageDropdown
+              stage={stage}
+              onStageChange={onStageChange}
+              open={openDrop === 'm-stage'}
+              onToggle={() => onToggleDrop('m-stage')}
+              onClose={onCloseDrop}
+              disabled={testRunning}
+            />
+          </Section>
+          <Divider />
+        </div>
 
         {appMode === 'test' && (
           <>
-            <Divider />
             <button
               className="w-full h-[42px] rounded-[8px] border-0 bg-accent text-white text-[14px] font-bold cursor-pointer font-sans transition-[background,opacity] duration-[130ms] hover:bg-accent-h disabled:opacity-40 disabled:cursor-not-allowed"
               onClick={onTestStart}
@@ -83,7 +86,6 @@ export default function MobilePanel({
 
         {appMode === 'print' && (
           <>
-            <Divider />
             <Section label="페이지 수">
               <PagesDropdown
                 pages={pages}

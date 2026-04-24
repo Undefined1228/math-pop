@@ -11,9 +11,10 @@ interface Props {
   onToggle: () => void
   onClose: () => void
   label?: string
+  disabled?: boolean
 }
 
-export default function StageDropdown({ stage, onStageChange, open, onToggle, onClose, label }: Props) {
+export default function StageDropdown({ stage, onStageChange, open, onToggle, onClose, label, disabled }: Props) {
   return (
     <Dropdown
       label={label ?? STAGE_PRESETS[stage].label}
@@ -22,6 +23,7 @@ export default function StageDropdown({ stage, onStageChange, open, onToggle, on
       items={STAGES.map(s => ({ key: s, label: STAGE_PRESETS[s].label, active: stage === s }))}
       onSelect={(key) => { onStageChange(key as Stage); onClose() }}
       wide
+      disabled={disabled}
     />
   )
 }

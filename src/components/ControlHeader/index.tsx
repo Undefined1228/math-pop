@@ -49,8 +49,12 @@ export default function ControlHeader({
 
   useEffect(() => {
     if (!stageDropFocusReq) return
-    setMobileOpen(true)
-    setOpenDrop('m-stage')
+    if (window.innerWidth >= 640) {
+      setOpenDrop('d-stage')
+    } else {
+      setMobileOpen(true)
+      setOpenDrop('m-stage')
+    }
     onStageDropFocusHandled?.()
   }, [stageDropFocusReq])
 
@@ -63,7 +67,16 @@ export default function ControlHeader({
 
   return (
     <header className="sticky top-0 z-[100] bg-navy shadow-[0_3px_14px_rgba(0,0,0,0.3)] print:hidden">
-      <div className="h-[58px] px-5 flex items-center gap-3">
+      <div className="h-[58px] px-5 flex items-center gap-3 relative">
+
+        {appMode === 'test' && testRunning && (
+          <div className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center pointer-events-none select-none">
+            <span className="text-[10px] font-sans text-white/40 tracking-[0.5px] uppercase leading-none mb-[3px]">테스트 진행 중</span>
+            <span className={`font-mono text-[19px] font-bold tabular-nums leading-none transition-colors duration-500 ${timerRemaining <= 30 ? 'text-red-400' : 'text-white'}`}>
+              {String(Math.floor(timerRemaining / 60)).padStart(2, '0')}:{String(timerRemaining % 60).padStart(2, '0')}
+            </span>
+          </div>
+        )}
 
         <div
           className="font-heading text-[17px] font-bold text-white tracking-[-0.3px] whitespace-nowrap mr-1 shrink-0 select-none cursor-default"
@@ -80,11 +93,12 @@ export default function ControlHeader({
             onToggle={() => toggleDrop('d-stage')}
             onClose={closeDrop}
             label={`${stage}단계`}
+            disabled={testRunning}
           />
         </div>
 
         <div className="ml-auto flex items-center gap-2 shrink-0">
-          <AppModeToggle appMode={appMode} onAppModeChange={onAppModeChange} />
+          <AppModeToggle appMode={appMode} onAppModeChange={onAppModeChange} disabled={testRunning} />
 
           {appMode === 'test' && (
             <button
@@ -95,13 +109,6 @@ export default function ControlHeader({
               테스트 시작
             </button>
           )}
-
-          <button
-            className="h-[34px] px-[14px] rounded-[6px] border border-white/25 bg-transparent text-white text-[13px] cursor-pointer flex items-center gap-[6px] font-sans transition-[background] duration-[130ms] hover:bg-white/10 max-sm:hidden"
-            onClick={() => window.print()}
-          >
-            🖨 인쇄
-          </button>
 
           {appMode === 'print' && secretVisible && (
             <div className="max-sm:hidden">

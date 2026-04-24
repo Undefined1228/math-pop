@@ -47,32 +47,49 @@ function genSub(range: Range): Pair {
 
 function genMul(range: Range): Pair {
   if (range === '1d') {
-    const a = rnd(1, 9)
-    const b = rnd(1, 9)
+    const a = rnd(2, 9)
+    const b = rnd(2, 9)
     return [a, b, a * b]
   }
-  const a = rnd(1, 9)
+  if (range === '3d') {
+    const a = rnd(100, 999)
+    const b = rnd(10, 99)
+    return [a, b, a * b]
+  }
+  const a = rnd(2, 9)
   const b = rnd(10, 99)
   return [a, b, a * b]
 }
 
 function genDiv(range: Range): Pair {
   if (range === '1d') {
-    const b = rnd(1, 9)
-    const q = rnd(1, Math.floor(9 / b))
+    const b = rnd(2, 9)
+    const q = rnd(2, 9)
     return [b * q, b, q]
+  }
+  if (range === '3d') {
+    const MAX_TRIES = 50
+    for (let t = 0; t < MAX_TRIES; t++) {
+      const b = rnd(10, 99)
+      const qMin = Math.ceil(100 / b)
+      const qMax = Math.floor(999 / b)
+      if (qMin > qMax) continue
+      const q = rnd(qMin, qMax)
+      return [b * q, b, q]
+    }
+    return [120, 10, 12]
   }
   const b = rnd(2, 9)
   const q = rnd(Math.ceil(10 / b), Math.floor(99 / b))
   return [b * q, b, q]
 }
 
-function gen2Term(id: number, op: Op, range: Range, noCarry?: boolean): Problem {
+function gen2Term(id: number, op: Op, range: Range, noCarry?: boolean, divRange?: Range): Problem {
   const [a, b, answer] =
     op === 'add' ? genAdd(range, noCarry) :
     op === 'sub' ? genSub(range) :
     op === 'mul' ? genMul(range) :
-    genDiv(range)
+    genDiv(divRange ?? range)
 
   const digits = Math.max(digitsOf(a), digitsOf(b))
   return {
@@ -117,30 +134,30 @@ function gen3Term(id: number): Problem {
   }
 }
 
-function makeProblem(id: number, ops: Op[], range: Range, noCarry?: boolean): Problem {
+function makeProblem(id: number, ops: Op[], range: Range, noCarry?: boolean, divRange?: Range): Problem {
   if (range === 'triple') return gen3Term(id)
   const op = ops[Math.floor(Math.random() * ops.length)]
-  return gen2Term(id, op, range, noCarry)
+  return gen2Term(id, op, range, noCarry, divRange)
 }
 
 export function generateProblems(
   pages: number,
   ops: Op[],
   range: Range,
-  options?: { count?: number; noCarry?: boolean },
+  options?: { count?: number; noCarry?: boolean; divRange?: Range },
 ): Problem[][] {
-  const { count, noCarry } = options ?? {}
+  const { count, noCarry, divRange } = options ?? {}
   if (count !== undefined) {
     const pageCount = Math.ceil(count / PROBLEMS_PER_PAGE)
     let id = 1
     return Array.from({ length: pageCount }, (_, p) => {
       const perPage = Math.min(count - p * PROBLEMS_PER_PAGE, PROBLEMS_PER_PAGE)
-      return Array.from({ length: perPage }, () => makeProblem(id++, ops, range, noCarry))
+      return Array.from({ length: perPage }, () => makeProblem(id++, ops, range, noCarry, divRange))
     })
   }
   return Array.from({ length: pages }, (_, p) =>
     Array.from({ length: PROBLEMS_PER_PAGE }, (_, i) =>
-      makeProblem(p * PROBLEMS_PER_PAGE + i + 1, ops, range, noCarry)
+      makeProblem(p * PROBLEMS_PER_PAGE + i + 1, ops, range, noCarry, divRange)
     )
   )
 }
