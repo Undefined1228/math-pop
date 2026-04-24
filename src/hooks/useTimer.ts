@@ -54,10 +54,11 @@ export function useTimer(durationSeconds: number) {
     }
   }, [alert])
 
-  const start = () => {
+  const start = (overrideDuration?: number) => {
+    const d = overrideDuration ?? durationSeconds
     if (intervalRef.current) clearInterval(intervalRef.current)
     setAlert(false)
-    setRemaining(durationSeconds)
+    setRemaining(d)
     setRunning(true)
   }
 

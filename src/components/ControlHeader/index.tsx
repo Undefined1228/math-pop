@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import type { Mode, Op, Range } from '../../domain/types'
-import { useTimer } from '../../hooks/useTimer'
 import { useLongPress } from '../../hooks/useLongPress'
 import { useOutsideClick } from '../../hooks/useOutsideClick'
 import SecretActions from './SecretActions'
@@ -20,19 +19,26 @@ interface Props {
   onShowAnswer: () => void
   onGrade: () => void
   onPrintAnswer: () => void
+  timerDuration: number
+  onTimerDurationChange: (s: number) => void
+  timerRemaining: number
+  timerRunning: boolean
+  timerAlert: boolean
+  onTimerStart: () => void
+  onTimerStop: () => void
 }
 
 export default function ControlHeader({
   mode, ops, range, pages,
   onModeChange, onOpsChange, onRangeChange, onPagesChange,
   onGenerate, onShowAnswer, onGrade, onPrintAnswer,
+  timerDuration, onTimerDurationChange,
+  timerRemaining, timerRunning, timerAlert, onTimerStart, onTimerStop,
 }: Props) {
   const [openDrop, setOpenDrop] = useState<string | null>(null)
   const [mobileOpen, setMobileOpen] = useState(false)
-  const [timerDuration, setTimerDuration] = useState(300)
   const [secretVisible, setSecretVisible] = useState(false)
 
-  const { remaining, running, start: startTimer, stop: stopTimer, alert: timerAlert } = useTimer(timerDuration)
   const titleHandlers = useLongPress(() => setSecretVisible(v => !v))
   useOutsideClick('[data-drop]', () => setOpenDrop(null))
   useOutsideClick('[data-panel], [data-hamburger]', () => setMobileOpen(false))
@@ -51,7 +57,6 @@ export default function ControlHeader({
           MathPop
         </div>
 
-        {/* 우측 액션 */}
         <div className="ml-auto flex items-center gap-2 shrink-0">
           <button
             className="h-[34px] px-4 rounded-[6px] border-0 bg-accent text-white text-[13px] font-bold cursor-pointer font-sans transition-[background] duration-[130ms] hover:bg-accent-h"
@@ -72,12 +77,11 @@ export default function ControlHeader({
                 onShowAnswer={onShowAnswer}
                 onGrade={onGrade}
                 onPrintAnswer={onPrintAnswer}
-                onStopTimer={stopTimer}
+                onStopTimer={onTimerStop}
               />
             </div>
           )}
 
-          {/* 햄버거 버튼 */}
           <button
             data-hamburger
             className="w-[36px] h-[36px] rounded-[6px] border border-white/20 bg-white/[0.08] cursor-pointer flex flex-col items-center justify-center gap-[5px] transition-[background] duration-[130ms] hover:bg-white/[0.16] shrink-0"
@@ -90,14 +94,13 @@ export default function ControlHeader({
         </div>
       </div>
 
-      {/* 타이머 진행 바 */}
-      {remaining < timerDuration && (
+      {timerRemaining < timerDuration && (
         <div className="h-[5px] w-full bg-white/[0.08] print:hidden">
           <div
             className="h-full transition-[width,background-color] duration-1000 ease-linear"
             style={{
-              width: `${(remaining / timerDuration) * 100}%`,
-              backgroundColor: `hsl(${(remaining / timerDuration) * 120}, 72%, 50%)`,
+              width: `${(timerRemaining / timerDuration) * 100}%`,
+              backgroundColor: `hsl(${(timerRemaining / timerDuration) * 120}, 72%, 50%)`,
             }}
           />
         </div>
@@ -114,11 +117,11 @@ export default function ControlHeader({
         onRangeChange={onRangeChange}
         onPagesChange={onPagesChange}
         timerDuration={timerDuration}
-        onTimerDurationChange={setTimerDuration}
-        timerRemaining={remaining}
-        timerRunning={running}
+        onTimerDurationChange={onTimerDurationChange}
+        timerRemaining={timerRemaining}
+        timerRunning={timerRunning}
         timerAlert={timerAlert}
-        onTimerStart={startTimer}
+        onTimerStart={onTimerStart}
         openDrop={openDrop}
         onToggleDrop={toggleDrop}
         onCloseDrop={closeDrop}
@@ -126,10 +129,10 @@ export default function ControlHeader({
         onShowAnswer={onShowAnswer}
         onGrade={onGrade}
         onPrintAnswer={onPrintAnswer}
-        onStopTimer={stopTimer}
+        onStopTimer={onTimerStop}
       />
 
-      <TimerAlertOverlay remaining={remaining} duration={timerDuration} running={running} />
+      <TimerAlertOverlay remaining={timerRemaining} duration={timerDuration} running={timerRunning} />
     </header>
   )
 }
