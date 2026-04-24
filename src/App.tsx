@@ -26,7 +26,7 @@ export default function App() {
 
   const [pages, setPages] = useState(1)
   const [timerDuration, setTimerDuration] = useState(
-    Math.round(preset.durationSec * PROBLEMS_PER_PAGE / preset.count)
+    Math.round(preset.durationSec * PROBLEMS_PER_PAGE / preset.count / 60) * 60
   )
   const [problems, setProblems] = useState<Problem[][]>(() =>
     generateProblems(1, preset.ops, preset.range, { noCarry: preset.noCarry })
@@ -37,7 +37,7 @@ export default function App() {
 
   const { remaining, running: timerRunning, start: startTimer, stop: stopTimer, alert: timerAlert } = useTimer(timerDuration)
 
-  const recommendedTimerSec = Math.round(preset.durationSec * pages * PROBLEMS_PER_PAGE / preset.count)
+  const recommendedTimerSec = Math.round(preset.durationSec * pages * PROBLEMS_PER_PAGE / preset.count / 60) * 60
 
   const resetState = () => {
     setInputs({})
@@ -82,7 +82,7 @@ export default function App() {
     resetState()
     setTestRunning(false)
     setTestResult(null)
-    setTimerDuration(Math.round(p.durationSec * pages * PROBLEMS_PER_PAGE / p.count))
+    setTimerDuration(Math.round(p.durationSec * pages * PROBLEMS_PER_PAGE / p.count / 60) * 60)
   }
 
   const handleTestStart = () => {
@@ -120,7 +120,7 @@ export default function App() {
       setProblems(generateProblems(p, ops, range, { noCarry: preset.noCarry }))
       resetState()
     }
-    setTimerDuration(Math.round(preset.durationSec * p * PROBLEMS_PER_PAGE / preset.count))
+    setTimerDuration(Math.round(preset.durationSec * p * PROBLEMS_PER_PAGE / preset.count / 60) * 60)
   }
 
   const handleInputChange = (key: string, val: string) => {
