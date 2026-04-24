@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useLongPress } from '../../hooks/useLongPress'
 import { useOutsideClick } from '../../hooks/useOutsideClick'
 import type { AppMode, Stage } from '../../domain/types'
@@ -28,6 +28,8 @@ interface Props {
   onTimerStart: () => void
   onTimerStop: () => void
   recommendedTimerSec: number
+  stageDropFocusReq?: boolean
+  onStageDropFocusHandled?: () => void
 }
 
 export default function ControlHeader({
@@ -39,10 +41,18 @@ export default function ControlHeader({
   timerDuration, onTimerDurationChange,
   timerRemaining, timerRunning, timerAlert, onTimerStart, onTimerStop,
   recommendedTimerSec,
+  stageDropFocusReq, onStageDropFocusHandled,
 }: Props) {
   const [openDrop, setOpenDrop] = useState<string | null>(null)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [secretVisible, setSecretVisible] = useState(false)
+
+  useEffect(() => {
+    if (!stageDropFocusReq) return
+    setMobileOpen(true)
+    setOpenDrop('m-stage')
+    onStageDropFocusHandled?.()
+  }, [stageDropFocusReq])
 
   const titleHandlers = useLongPress(() => setSecretVisible(v => !v))
   useOutsideClick('[data-drop]', () => setOpenDrop(null))

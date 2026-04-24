@@ -17,6 +17,7 @@ export default function App() {
   const [stage, setStage] = useState<Stage>(1)
   const [testRunning, setTestRunning] = useState(false)
   const [testResult, setTestResult] = useState<TestResult | null>(null)
+  const [stageDropFocusReq, setStageDropFocusReq] = useState(false)
 
   const preset = STAGE_PRESETS[stage]
   const mode = preset.mode
@@ -164,6 +165,8 @@ export default function App() {
         onTimerStart={() => startTimer()}
         onTimerStop={stopTimer}
         recommendedTimerSec={recommendedTimerSec}
+        stageDropFocusReq={stageDropFocusReq}
+        onStageDropFocusHandled={() => setStageDropFocusReq(false)}
       />
       {appMode === 'print' && gradedCount > 0 && (
         <div className="max-w-[880px] mx-auto px-5 pt-5 print:hidden">
@@ -194,7 +197,7 @@ export default function App() {
           result={testResult}
           onRetry={handleTestStart}
           onRetryWrong={handleRetryWrong}
-          onChangeStage={() => setTestResult(null)}
+          onChangeStage={() => { setTestResult(null); setStageDropFocusReq(true) }}
           onSwitchToPrint={() => { handleAppModeChange('print'); setTestResult(null) }}
         />
       )}
