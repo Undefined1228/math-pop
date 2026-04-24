@@ -69,7 +69,7 @@ function gen2Term(id: number, op: Op, range: Range): Problem {
     op === 'mul' ? genMul(range) :
     genDiv(range)
 
-  const digits = Math.max(digitsOf(a), digitsOf(b), digitsOf(answer))
+  const digits = Math.max(digitsOf(a), digitsOf(b))
   return {
     id,
     operands: [a, b],
@@ -92,7 +92,7 @@ function gen3Term(id: number): Problem {
     const answer = op2 === '+' ? mid + c : mid - c
     if (answer < 0) continue
 
-    const digits = Math.max(digitsOf(a), digitsOf(b), digitsOf(c), digitsOf(answer))
+    const digits = Math.max(digitsOf(a), digitsOf(b), digitsOf(c))
     return {
       id,
       operands: [a, b, c],
