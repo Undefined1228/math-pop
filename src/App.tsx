@@ -133,13 +133,7 @@ export default function App() {
   return (
     <>
       <ControlHeader
-        mode={mode}
-        ops={ops}
-        range={range}
         pages={pages}
-        onModeChange={() => {}}
-        onOpsChange={() => {}}
-        onRangeChange={() => {}}
         onPagesChange={handlePagesChange}
         onGenerate={generate}
         onShowAnswer={handleShowAnswer}

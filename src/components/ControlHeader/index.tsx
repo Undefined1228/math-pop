@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import type { Mode, Op, Range } from '../../domain/types'
 import { useLongPress } from '../../hooks/useLongPress'
 import { useOutsideClick } from '../../hooks/useOutsideClick'
 import SecretActions from './SecretActions'
@@ -7,13 +6,7 @@ import MobilePanel from './MobilePanel'
 import TimerAlertOverlay from './TimerAlertOverlay'
 
 interface Props {
-  mode: Mode
-  ops: Op[]
-  range: Range
   pages: number
-  onModeChange: (m: Mode) => void
-  onOpsChange: (ops: Op[]) => void
-  onRangeChange: (r: Range) => void
   onPagesChange: (p: number) => void
   onGenerate: () => void
   onShowAnswer: () => void
@@ -29,8 +22,7 @@ interface Props {
 }
 
 export default function ControlHeader({
-  mode, ops, range, pages,
-  onModeChange, onOpsChange, onRangeChange, onPagesChange,
+  pages, onPagesChange,
   onGenerate, onShowAnswer, onGrade, onPrintAnswer,
   timerDuration, onTimerDurationChange,
   timerRemaining, timerRunning, timerAlert, onTimerStart, onTimerStop,
@@ -108,13 +100,7 @@ export default function ControlHeader({
 
       <MobilePanel
         open={mobileOpen}
-        mode={mode}
-        ops={ops}
-        range={range}
         pages={pages}
-        onModeChange={onModeChange}
-        onOpsChange={onOpsChange}
-        onRangeChange={onRangeChange}
         onPagesChange={onPagesChange}
         timerDuration={timerDuration}
         onTimerDurationChange={onTimerDurationChange}

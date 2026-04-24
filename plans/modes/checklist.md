@@ -31,10 +31,10 @@
 
 ## Phase 3 — 컴포넌트 제거
 
-- [ ] `RangeDropdown` 삭제
-- [ ] `OpsDropdown` 삭제
-- [ ] `ModeToggle` (셈 방식 토글) 삭제
-- [ ] `MobilePanel`에서 "숫자 범위", "연산 종류", "셈 방식" 섹션 제거
+- [x] `RangeDropdown` 삭제
+- [x] `OpsDropdown` 삭제
+- [x] `ModeToggle` (셈 방식 토글) 삭제
+- [x] `MobilePanel`에서 "숫자 범위", "연산 종류", "셈 방식" 섹션 제거
 
 ---
 

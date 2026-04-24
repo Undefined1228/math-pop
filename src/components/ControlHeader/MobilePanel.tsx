@@ -1,21 +1,11 @@
 import { useEffect, useState } from 'react'
-import type { Mode, Op, Range } from '../../domain/types'
-import { OP_LABELS, ALL_OPS, RANGE_LABELS, RANGE_OPS_SUPPORT } from '../../domain/labels'
-import ModeToggle from './ModeToggle'
-import RangeDropdown from './RangeDropdown'
 import PagesDropdown from './PagesDropdown'
 import TimerWidget from './TimerWidget'
 import SecretActions from './SecretActions'
 
 interface Props {
   open: boolean
-  mode: Mode
-  ops: Op[]
-  range: Range
   pages: number
-  onModeChange: (m: Mode) => void
-  onOpsChange: (ops: Op[]) => void
-  onRangeChange: (r: Range) => void
   onPagesChange: (p: number) => void
 
   timerDuration: number
@@ -37,23 +27,12 @@ interface Props {
 }
 
 export default function MobilePanel({
-  open, mode, ops, range, pages,
-  onModeChange, onOpsChange, onRangeChange, onPagesChange,
+  open, pages, onPagesChange,
   timerDuration, onTimerDurationChange,
   timerRemaining, timerRunning, timerAlert, onTimerStart,
   openDrop, onToggleDrop, onCloseDrop,
   secretVisible, onShowAnswer, onGrade, onPrintAnswer, onStopTimer,
 }: Props) {
-  const supportedOps = RANGE_OPS_SUPPORT[range]
-  const isOpEnabled = (op: Op) => supportedOps.includes(op)
-  const opTooltip = (op: Op): string | undefined =>
-    isOpEnabled(op) ? undefined : `${RANGE_LABELS[range]}에서는 ${OP_LABELS[op]} 미지원`
-  const toggleOp = (op: Op) => {
-    if (!isOpEnabled(op)) return
-    if (ops.includes(op) && ops.length === 1) return
-    onOpsChange(ops.includes(op) ? ops.filter(o => o !== op) : [...ops, op])
-  }
-
   const [clip, setClip] = useState(true)
   useEffect(() => {
     if (!open) setClip(true)
@@ -68,52 +47,6 @@ export default function MobilePanel({
       }}
     >
       <div className="bg-navy border-t border-white/10 px-5 pt-4 pb-5 sm:border-0 sm:rounded-[8px] sm:shadow-[0_10px_28px_rgba(0,0,0,0.35)]">
-
-        <Section label="셈 방식">
-          <ModeToggle mode={mode} onModeChange={onModeChange} />
-        </Section>
-
-        <Divider />
-
-        <Section label="숫자 범위">
-          <RangeDropdown
-            range={range}
-            ops={ops}
-            onRangeChange={onRangeChange}
-            onOpsChange={onOpsChange}
-            open={openDrop === 'm-range'}
-            onToggle={() => onToggleDrop('m-range')}
-            onClose={onCloseDrop}
-          />
-        </Section>
-
-        <Divider />
-
-        <Section label="연산 종류">
-          <div className="flex gap-2 flex-wrap">
-            {ALL_OPS.map(op => {
-              const enabled = isOpEnabled(op)
-              return (
-                <label
-                  key={op}
-                  title={opTooltip(op)}
-                  className={`flex items-center gap-[6px] bg-white/[0.08] border border-white/15 rounded-[6px] px-3 py-[6px] text-white text-[13px] font-sans transition-opacity duration-150 ${enabled ? 'cursor-pointer' : 'opacity-40 cursor-not-allowed'}`}
-                >
-                  <input
-                    type="checkbox"
-                    checked={ops.includes(op)}
-                    onChange={() => toggleOp(op)}
-                    disabled={!enabled}
-                    className="accent-accent w-[14px] h-[14px] disabled:cursor-not-allowed"
-                  />
-                  {OP_LABELS[op]}
-                </label>
-              )
-            })}
-          </div>
-        </Section>
-
-        <Divider />
 
         <Section label="페이지 수">
           <PagesDropdown
