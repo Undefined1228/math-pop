@@ -5,7 +5,7 @@ import GradeBadge from './GradeBadge'
 import { NO_FILL, SYM_DISPLAY, borderClass, type CardProps } from './shared'
 
 export default function HoriCard({ p, showAnswer, gradeResult, inputs, onInputChange }: CardProps) {
-  const answerMaxLen = Math.max(5, String(p.answer).length + 1)
+  const answerMaxLen = Math.max(5, String(p.answer as number).length + 1)
 
   return (
     <div className={`relative bg-paper rounded-[3px] h-[60px] px-[14px] flex items-end pb-[10px] gap-[10px] ${borderClass(gradeResult)}`}>
@@ -14,7 +14,7 @@ export default function HoriCard({ p, showAnswer, gradeResult, inputs, onInputCh
         {p.operands.map((v, i) => (
           <React.Fragment key={i}>
             {i > 0 && <span className="text-navy mx-1">{SYM_DISPLAY[p.ops[i - 1]]}</span>}
-            {v}
+            {v as number}
           </React.Fragment>
         ))}
       </div>

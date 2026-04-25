@@ -29,7 +29,7 @@ export default function App() {
     Math.round(preset.durationSec * PROBLEMS_PER_PAGE / preset.count / 60) * 60
   )
   const [problems, setProblems] = useState<Problem[][]>(() =>
-    generateProblems(1, preset.ops, preset.range, { noCarry: preset.noCarry, divRange: preset.divRange })
+    generateProblems(1, preset.ops, preset.range, { noCarry: preset.noCarry, divRange: preset.divRange, fracConfig: preset.fracConfig })
   )
   const [inputs, setInputs] = useState<Record<string, string>>({})
   const [showAnswer, setShowAnswer] = useState(false)
@@ -78,7 +78,7 @@ export default function App() {
   const handleStageChange = (s: Stage) => {
     const p = STAGE_PRESETS[s]
     setStage(s)
-    setProblems(generateProblems(pages, p.ops, p.range, { noCarry: p.noCarry, divRange: p.divRange }))
+    setProblems(generateProblems(pages, p.ops, p.range, { noCarry: p.noCarry, divRange: p.divRange, fracConfig: p.fracConfig }))
     resetState()
     setTestRunning(false)
     setTestResult(null)
@@ -87,7 +87,7 @@ export default function App() {
 
   const handleTestStart = () => {
     const p = STAGE_PRESETS[stage]
-    const newProblems = generateProblems(1, p.ops, p.range, { count: p.count, noCarry: p.noCarry, divRange: p.divRange })
+    const newProblems = generateProblems(1, p.ops, p.range, { count: p.count, noCarry: p.noCarry, divRange: p.divRange, fracConfig: p.fracConfig })
     setProblems(newProblems)
     resetState()
     setTestResult(null)
@@ -117,7 +117,7 @@ export default function App() {
   const handlePagesChange = (p: number) => {
     setPages(p)
     if (p > problems.length) {
-      setProblems(generateProblems(p, ops, range, { noCarry: preset.noCarry, divRange: preset.divRange }))
+      setProblems(generateProblems(p, ops, range, { noCarry: preset.noCarry, divRange: preset.divRange, fracConfig: preset.fracConfig }))
       resetState()
     }
     setTimerDuration(Math.round(preset.durationSec * p * PROBLEMS_PER_PAGE / preset.count / 60) * 60)

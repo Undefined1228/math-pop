@@ -23,7 +23,7 @@ export const ALL_OPS: Op[] = ['add', 'sub', 'mul', 'div']
 export const RANGE_OPS_SUPPORT: Record<Range, Op[]> = {
   '1d': ['add', 'sub', 'mul', 'div'],
   '2d': ['add', 'sub', 'mul', 'div'],
-  '3d': ['add', 'sub'],
+  '3d': ['add', 'sub', 'mul', 'div'],
   '4d': ['add', 'sub'],
   'mix': ['add', 'sub'],
   'triple': ['add', 'sub'],
