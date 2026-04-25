@@ -35,7 +35,7 @@ export default function HoriCard({ p, showAnswer, gradeResult, inputs, onInputCh
         />
         {showAnswer && (
           <span className="absolute inset-0 flex items-center justify-center font-mono text-[19px] font-medium text-navy pointer-events-none pb-[2px]">
-            {p.answer}
+            {p.answer as number}
           </span>
         )}
       </div>

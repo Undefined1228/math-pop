@@ -1,4 +1,4 @@
-import { isFraction, type Problem, type Fraction } from './problem'
+import { type Problem, type Fraction } from './problem'
 import type { Mode } from './types'
 
 export const inputKey = (pid: number, idx?: number) =>
