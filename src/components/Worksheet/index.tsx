@@ -2,6 +2,7 @@ import type { Problem } from '../../domain/problem'
 import type { Mode } from '../../domain/types'
 import HoriCard from './HoriCard'
 import VertCard from './VertCard'
+import FracCard from './FracCard'
 
 interface Props {
   mode: Mode
@@ -38,7 +39,9 @@ export default function Worksheet({ mode, pages, showAnswer, gradedResults, inpu
               : 'grid grid-cols-4 gap-[18px] max-[700px]:grid-cols-3 max-[520px]:grid-cols-2 max-[340px]:grid-cols-1'
           }>
             {problems.map(p =>
-              isHori
+              (p.kind === 'fraction' || p.kind === 'decimal')
+                ? <FracCard key={p.id} p={p} showAnswer={showAnswer} gradeResult={gradedResults[p.id]} inputs={inputs} onInputChange={onInputChange} />
+                : isHori
                 ? <HoriCard key={p.id} p={p} showAnswer={showAnswer} gradeResult={gradedResults[p.id]} inputs={inputs} onInputChange={onInputChange} />
                 : <VertCard key={p.id} p={p} showAnswer={showAnswer} gradeResult={gradedResults[p.id]} inputs={inputs} onInputChange={onInputChange} />
             )}

@@ -4,15 +4,14 @@ export function useTimer(durationSeconds: number) {
   const [remaining, setRemaining] = useState(durationSeconds)
   const [running, setRunning] = useState(false)
   const [alert, setAlert] = useState(false)
-  const [prevDuration, setPrevDuration] = useState(durationSeconds)
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
-  if (prevDuration !== durationSeconds) {
-    setPrevDuration(durationSeconds)
-    setRunning(false)
-    setRemaining(durationSeconds)
-    setAlert(false)
-  }
+  useEffect(() => {
+    if (!running) {
+      setRemaining(durationSeconds)
+      setAlert(false)
+    }
+  }, [durationSeconds])
 
   useEffect(() => {
     if (running) {
@@ -54,10 +53,11 @@ export function useTimer(durationSeconds: number) {
     }
   }, [alert])
 
-  const start = () => {
+  const start = (overrideDuration?: number) => {
+    const d = overrideDuration ?? durationSeconds
     if (intervalRef.current) clearInterval(intervalRef.current)
     setAlert(false)
-    setRemaining(durationSeconds)
+    setRemaining(d)
     setRunning(true)
   }
 

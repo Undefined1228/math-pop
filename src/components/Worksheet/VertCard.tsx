@@ -12,7 +12,7 @@ function digitAt(n: number, width: number, pos: number) {
 export default function VertCard({ p, showAnswer, gradeResult, inputs, onInputChange }: CardProps) {
   const [focused, setFocused] = useState<string | null>(null)
   const cols = p.digits + 1
-  const ansStr = String(p.answer).padStart(cols, ' ')
+  const ansStr = String(p.answer as number).padStart(cols, ' ')
   const cell = 'flex items-center justify-center'
 
   const carryCols = Array.from({ length: cols }, (_, i) => i)
@@ -65,7 +65,7 @@ export default function VertCard({ p, showAnswer, gradeResult, inputs, onInputCh
                       key={`r${row}-d${i}`}
                       className={`${cell} border-b border-stroke ${isLastCol ? '' : 'border-r'} font-mono text-[19px] font-medium`}
                     >
-                      {digitAt(value, p.digits, i)}
+                      {digitAt(value as number, p.digits, i)}
                     </div>
                   )
                 })}
